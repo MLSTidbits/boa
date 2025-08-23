@@ -1,0 +1,291 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+function reset_env () {
+
+    rm -rv debian/.* debian/"$(basename "$(pwd)")" \
+        debian/files \
+        debian/{changelog,changelog.gz} 2>/dev/null \
+        debian/*.substvars \
+        debian/*.ex \
+        debian/*.debhelper \
+        man/"$(basename "$(pwd)")".{1,conf.5,8} || true
+
+        # shellcheck disable=SC2181
+        if [ "$?" -eq 0 ] ; then
+            echo -e "\033[32mEnvironment reset successfully.\033[0m"
+        else
+            echo -e "\033[31mFailed to reset the environment.\033[0m"
+            exit 1
+        fi
+}
+
+function build_deb () {
+
+    local _arch _no_sign _key _root_command
+
+    _sign_key=
+    _no_sign=""
+    _target_arch=( "$(dpkg --print-architecture)" )
+    _root_command=fakeroot
+    _arches=()
+
+    # Manually required system packages
+    _required=( debhelper dh-make git dh-gitchangelog pandoc coreutils )
+    _missing=()
+
+    shift
+
+    while [ $# -gt 0 ] ; do case "$1" in
+            --build-type            )
+                case "$2" in
+                    binary|source|full )
+                        _type="$2" ; shift ;;
+                    *                  )
+                        echo "Invalid build type: $2" ; exit 1
+                ;;
+                esac
+            ;;
+            --sign-key              ) _key="$2" ; shift ;;
+            --no-sign               ) _no_sign="--no-sign" ;;
+            --root-command          )
+                case "$2" in
+                    fakeroot|sudo|super|really )
+                        _root="--root-command=$_root_command" ;;
+                    *                          )
+                        echo "Invalid root command: $2" ; exit 1
+                    ;;
+                esac
+            ;;
+            --*                     ) echo "Unknown option: $1" ; exit 1 ;;
+        esac ; shift ; done
+
+    # If no --target-arch was provided, use the default architecture
+    if [ -n "$_no_sign" ] && [ -n "$_key" ] ; then
+        echo "$_waring The --sign-key option is ignored because --no-sign is set."
+        _sign_key=""
+    fi
+
+    if [ -n "$_key" ] ; then
+        if ! gpg --list-keys "$_key" &>/dev/null ; then
+            echo "$_fail GPG key $_key not found."
+            exit 1
+        fi
+        _sign_key="--sign-key=$_key"
+    fi
+
+    if [ ! -d "debian" ] ; then
+        echo "The debian directory is missing. Please run \`dh_make\` first."
+        exit 1
+    fi
+
+    # Check if the HowToNebie APT repository is available
+    if ! grep -qr "howtonebie" /etc/apt/ 2>/dev/null; then
+        echo -e "$_missingRepo"
+    else
+        echo -e "configure: Detected HowToNebie APT repository."
+    fi
+
+    for pkg in "${_required[@]}"; do
+        if dpkg -s "$pkg" &>/dev/null "$pkg"; then
+            echo -e "configure: Checking for $pkg $_pass"
+        else
+            echo -e "configure: Checking for $pkg $_fail"
+            _missing+=( "$pkg" )
+        fi
+    done
+
+    # If _missing is not empty, print a message and exit
+    if [ ${#_missing[@]} -ne 0 ]; then
+        echo -e "configure: The following packages are missing:\n"
+        for pkg in "${_missing[@]}"; do echo -e "  - $pkg" ; done
+        echo -e "\nPlease install them using your package manager (e.g. \`sudo apt install <package>\`)"
+        exit 1
+    fi
+
+    if [ "$_type" = "source" ] || [ "$_type" = "full" ] ; then
+        # Compress the source package into a tarball
+        _version=$(cat doc/version)
+        cd ../ ; tar -czf "${_app_name}_$_version.orig.tar.gz" "$_app_name"
+        cd "$_app_name"
+    fi
+
+    dh_gitchangelog
+
+    if [ -d man ] ; then
+        for m in man/*.md; do
+            base=$(basename "$m" .md)
+            out="man/${base}"
+            pandoc "$m" -s -t man -o "$out"
+        done
+    fi
+
+    for arch in "${_target_arch[@]}"; do
+        # shellcheck disable=SC2086
+        dpkg-buildpackage ${_root} ${_no_sign} ${_sign_key} --target-arch "$arch" --build=${_type:-binary}
+        # shellcheck disable=SC2181
+        if [ $? -ne 0 ]; then
+            echo -e "$_fail Failed to build package for architecture: $arch"
+            exit 1
+        else
+            echo -e "$_pass Successfully built package for architecture: $arch"
+        fi
+    done
+
+}
+
+function manual_install () {
+
+    echo "Installing the application..."
+
+    # shellcheck disable=SC1091
+    source /etc/os-release || { echo "Missing /etc/os-release file." ; exit 1 ; }
+
+    echo -e "Detected OS: \033[1m$NAME\033[0m\n"
+
+    (( "$(id -u)" == 0 )) || { echo "$_rootInstructions" ; exit 1 ; }
+
+    install -vm 644 -D "$_app_conf" "$_etc_dir/"
+    install -vm 644 -D "$_app" "$_app_bin/"
+    install -vm 644 -D "$_app_service" "$_systemd_dir/"
+    install -vm 644 -D "$_app_completion" "$_bash_completion/"
+    install -vm 644 -D "$_copyright" "$_docs/"
+    install -vm 644 -D "$_readme" "$_docs/"
+    install -vm 644 -D "$_coc" "$_docs/"
+    install -vm 644 -D "$_version" "$_docs/"
+
+    if command -v pandoc &>/dev/null ; then
+        for m in man/*.md; do
+            base=$(basename "$m" .md)
+            out="${BUILD_DIR}/usr/share/man/man8/${base}"
+            pandoc "$m" -s -t man -o "$out"
+            gzip -f9 "$out"
+            echo "Installed manpage: $out.gz"
+        done
+    else
+        echo -e "configure: pandoc is not installed. Skipping manpage generation."
+    fi
+
+    echo ""
+
+    # enable the service
+    # shellcheck disable=SC2086
+    case "$(systemctl is-enabled $_app_name.service)" in
+        enabled|static                  )
+            echo -e "\033[32mService $_app_name is already enabled.\033[0m"
+        ;;
+        disabled|inactive               )
+            echo -e "\033[33mEnabling service $_app_name...\033[0m"
+            systemctl enable --now "$_app_name.service"
+        ;;
+        dead|failed)
+            echo -e "\033[31mService $_app_name is dead or failed.\033[0m"
+            echo -e "Please check the service status with \`systemctl status $_app_name.service\`"
+            exit 1
+        ;;
+        not-found|unknown               )
+            echo -e "\033[31mService $_app_name does not exist.\033[0m"
+            exit 1
+        ;;
+        *                               )
+            echo -e "\033[31mService $_app_name is not enabled.\033[0m"
+        ;;
+    esac
+
+}
+
+set -eo pipefail
+
+_app_name="$(basename "$(pwd)")"
+
+# Directories where the files will be installed
+
+_etc_dir="/etc/default"
+_docs="/usr/share/doc/$_app_name"
+_app_bin="/usr/bin"
+_bash_completion="/usr/share/bash-completion/completions"
+_man="/usr/share/man/man1"
+_systemd_dir="/usr/lib/systemd/system"
+
+# Files to be installed
+_app="$_app_name"
+_app_conf="$_app_name.conf"
+_app_service="$_app_name.service"
+_app_completion="completion/$_app_name"
+_copyright="COPYING"
+_readme="README.md"
+_coc="CODE_OF_CONDUCT.md"
+_version="docs/version"
+_app_man="man/$_app_name.1.md"
+_conf_man="man/$_app_name.conf.5.md"
+
+_gpg_id=""
+_sign=true
+
+_pass="[\033[32m\u2714\033[0m]"
+_fail="[\033[31mx\033[0m]"
+_waring="[\033[33m!\033[0m]"
+
+_rootInstructions="$(cat <<-EOF
+To install this package, you need to run this script as root.
+EOF
+)"
+
+_helpInfo="$(cat <<-EOF
+Configure script for $_app_name - A Btrfs snapshot management tool.
+
+Usage: $0 [options] flags ARG..
+
+Options:
+    build           Build the DEB package using dpkg-buildpackage. if no other
+                    options are specified the build may fail.
+
+    install         Install the application, useful for non Debian/Ubuntu systems.
+                    This option requires root privileges.
+
+    reset           Reset the build environment.
+
+    help            Show this help message and exit.
+
+Build Flags:
+    --build-type TYPE
+                    Specify the build type. Valid values are: binary, source, full.
+                    Default is binary.
+
+    --sign-key GPG_ID
+                    Specify the GPG key ID to sign the package. If not specified,
+                    the package will not be signed.
+
+    --no-sign       Do not sign the package. Overrides --sign-key.
+
+    --root-command COMMAND
+                    Specify the command to run as root. Valid values are: fakeroot,
+                    sudo, super, really. Default is fakeroot.
+
+Examples:
+    $0 build --build-type binary
+    $0 build --no-sign --root-command sudo
+EOF
+)"
+
+_missingRepo="$(cat <<-EOF
+HowToNebie APT repository is not available on your system.
+
+Please add the HowToNebie APT repository to your system.
+You can find instructions here: https://repository.howtonebie.com
+After adding the repository to your system, run:
+
+    sudo apt update\033[0m - Then run this script again."
+EOF
+)"
+
+case "$1" in
+    build                     ) build_deb "$@"                     ;;
+    install                   ) manual_install                     ;;
+    reset                     ) reset_env                          ;;
+    help                      ) echo -e "$_helpInfo"               ;;
+    *                         ) echo "Unknown option: $1" ; exit 1 ;;
+esac
+
+exit 0

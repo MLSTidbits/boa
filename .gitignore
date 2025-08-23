@@ -1,0 +1,12 @@
+.vscode/
+
+build/
+
+*.gz
+*.xz
+*.deb
+*.tar
+dist/
+changelog
+version
+md5sums
