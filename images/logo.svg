@@ -1,2 +1,117 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><title>folder_type_template_opened</title><path d="M27.4,5.5H18.2L16.1,9.7H4.3V26.5H29.5V5.5Zm0,18.7H6.6V11.8H27.4Zm0-14.5H19.2l1-2.1h7.1V9.7Z" style="fill:#dbad7b"/><polygon points="25.7 13.7 0.5 13.7 4.3 26.5 29.5 26.5 25.7 13.7" style="fill:#dbad7b"/><path d="M29.025,14.38H11.974A1.978,1.978,0,0,0,10,16.354V29.029A1.978,1.978,0,0,0,11.974,31H29.025A1.978,1.978,0,0,0,31,29.026V16.354A1.979,1.979,0,0,0,29.025,14.38Z" style="fill:#675f58"/><path d="M29.925,29.026a.905.905,0,0,1-.9.9H11.974a.905.905,0,0,1-.9-.9V17.62h18.85V29.026Z" style="fill:#ccc"/><rect x="14.9" y="20.246" width="2.8" height="2.801" style="fill:#ff931e"/><rect x="19.1" y="20.246" width="2.8" height="2.801" style="fill:#ff931e"/><rect x="23.3" y="20.246" width="2.8" height="2.801" style="fill:#ff931e"/><rect x="14.9" y="24.446" width="2.8" height="2.8" style="fill:#ff931e"/><rect x="19.1" y="24.446" width="2.8" height="2.8" style="fill:#ff931e"/><rect x="23.3" y="24.446" width="2.8" height="2.8" style="fill:#ff931e"/></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   fill="#000000"
+   height="256"
+   width="768"
+   version="1.1"
+   id="Layer_1"
+   viewBox="0 0 491.52 163.84"
+   xml:space="preserve"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs23">
+	
+</defs><sodipodi:namedview
+   id="namedview21"
+   pagecolor="#505050"
+   bordercolor="#ffffff"
+   borderopacity="1"
+   inkscape:showpageshadow="0"
+   inkscape:pageopacity="0"
+   inkscape:pagecheckerboard="1"
+   inkscape:deskcolor="#505050"
+   showgrid="false"
+   inkscape:zoom="1.1484375"
+   inkscape:cx="307.37415"
+   inkscape:cy="127.56463"
+   inkscape:window-width="1536"
+   inkscape:window-height="795"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+
+
+<g
+   id="g870"
+   transform="matrix(0.32,0,0,0.32,10.24,0)"><g
+     id="g6"
+     style="fill:#005500">
+	<g
+   id="g4"
+   style="fill:#005500">
+		<path
+   d="m 445.217,378.435 c -138.295,0 -232.811,0 -378.435,0 C 29.9,378.435 0,408.334 0,445.217 0,482.1 29.9,512 66.783,512 H 445.218 C 482.1,512 512,482.1 512,445.217 512,408.334 482.1,378.435 445.217,378.435 Z M 103.25,478.609 c 6.915,-19.391 25.275,-33.391 47.01,-33.391 21.736,0 40.095,14 47.01,33.391 z m 258.489,-33.392 c -21.737,0 -40.095,-14.111 -47.01,-33.503 51.676,0 45.34,0 94.022,0 -6.917,19.392 -25.275,33.503 -47.012,33.503 z"
+   id="path2"
+   style="fill:#005500" />
+	</g>
+</g><g
+     id="g12"
+     transform="translate(0,3.2970123)"
+     style="fill:#005500">
+	<g
+   id="g10"
+   style="fill:#005500">
+		<path
+   d="M 395.13,211.478 H 116.87 c -36.883,0 -66.783,29.9 -66.783,66.783 0,36.883 29.9,66.783 66.783,66.783 h 278.26 c 36.883,0 66.783,-29.9 66.783,-66.783 0,-36.883 -29.9,-66.783 -66.783,-66.783 z m -211.478,66.783 c -21.735,0 -40.095,-14 -47.01,-33.391 48.681,0 42.345,0 94.021,0 -6.916,19.391 -25.275,33.391 -47.011,33.391 z"
+   id="path8"
+   style="fill:#005500" />
+	</g>
+</g><g
+     id="g16"
+     style="fill:#005500;fill-opacity:1">
+		<path
+   d="m 294.957,0 c -28.25,0 -50.612,0 -80.679,0 -31.497,0 -59.47,20.931 -67.335,50.087 h -28.725 l -28.501,-28.5 c -6.521,-6.521 -17.087,-6.521 -23.609,0 -6.521,6.516 -6.521,17.092 0,23.609 L 87.696,66.782 66.109,88.37 c -6.522,6.516 -6.522,17.092 0,23.608 6.522,6.522 17.086,6.522 23.609,0 l 28.499,-28.5 h 28.65 c 7.421,28.791 33.503,50.087 64.611,50.087 h 33.391 v 44.522 H 378.434 V 83.478 C 378.435,37.374 341.06,0 294.957,0 Z m -16.696,66.783 c -9.22,0 -16.696,-7.475 -16.696,-16.696 0,-9.221 7.475,-16.696 16.696,-16.696 9.221,0 16.696,7.475 16.696,16.696 0,9.221 -7.476,16.696 -16.696,16.696 z m 66.782,77.913 h -30.315 c 5.043,-14.143 16.17,-25.271 30.315,-30.315 z"
+   id="path14"
+   style="fill:#005500;fill-opacity:1" />
+	</g></g>
+<g
+   id="g4012"
+   style="fill:#e5ffd5;fill-opacity:0.5"
+   transform="translate(10.24)"><text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:81.92px;line-height:1.25;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold';fill:#e5ffd5;fill-opacity:0.5;stroke:none;stroke-width:0.64"
+     x="-1.36"
+     y="53.639999"
+     id="text3996"><tspan
+       sodipodi:role="line"
+       id="tspan3994"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:81.92px;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold';fill:#e5ffd5;fill-opacity:0.5;stroke-width:0.64"
+       x="-1.36"
+       y="53.639999">B</tspan></text><text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:81.92px;line-height:1.25;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold';fill:#e5ffd5;fill-opacity:0.5;stroke:none;stroke-width:0.64"
+     x="50.060001"
+     y="108.64"
+     id="text4000"><tspan
+       sodipodi:role="line"
+       id="tspan3998"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:81.92px;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold';fill:#e5ffd5;fill-opacity:0.5;stroke-width:0.64"
+       x="50.060001"
+       y="108.64">O</tspan></text><text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:81.92px;line-height:1.25;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold';fill:#e5ffd5;fill-opacity:0.5;stroke:none;stroke-width:0.64"
+     x="105.28"
+     y="163.84"
+     id="text4004"><tspan
+       sodipodi:role="line"
+       id="tspan4002"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:81.92px;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold';fill:#e5ffd5;fill-opacity:0.5;stroke-width:0.64"
+       x="105.28"
+       y="163.84">A</tspan></text></g><text
+   xml:space="preserve"
+   style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.8933px;line-height:1.25;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold Italic';fill:#e5ffd5;fill-opacity:1;stroke:none;stroke-width:0.64"
+   x="204.5504"
+   y="87.630829"
+   id="text6253"><tspan
+     sodipodi:role="line"
+     id="tspan6251"
+     style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.8933px;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif Bold Italic';stroke-width:0.64;fill:#e5ffd5"
+     x="204.5504"
+     y="87.630829">Debian packages made easy</tspan></text></svg>
