@@ -24,7 +24,7 @@ check-builddeps: true
 jobs: auto
 
 # Configuration for signing the built packages.
-no-sign: false
+no-sign: true
 
 sign:
   # Set what backend to use for signing packages. The default is `auto` and
@@ -32,7 +32,7 @@ sign:
   backend: gpg
   # What keyID should be used for signing the packages. this can be either
   # the full fingerprint or name of the key.
-  keyid: F04DE9FE25468B78DD8834316E4A029E42A1C879
+  keyid:
   pause: false
 
 changelog:
