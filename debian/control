@@ -1,16 +1,19 @@
-Source: template
-Section: unknown
+Source: boa
+Section: devel
 Priority: optional
-Maintainer: Michael <michaelleeschaecher@gmail.com>
-Build-Depends: debhelper-compat (= 13), autotools-dev
+Maintainer: MLS Tidbits <contact@mlstidbits.com>
+Build-Depends:
+ debhelper-compat (= 13), pandoc, dh-make, git
 Standards-Version: 4.6.0
-Homepage: <insert the upstream URL, if relevant>
+Homepage: https://github.com/mlstidbits/boa
 #Vcs-Browser: https://salsa.debian.org/debian/template
-#Vcs-Git: https://salsa.debian.org/debian/template.git
+Vcs-Git: https://github.com/mlstidbits/boa.git
 Rules-Requires-Root: no
 
-Package: template
+Package: boa
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: dh-make, yq, jq
+Description: Boa is a wrapper script for building Debian packages.
+ Using a simple YAML configuration file, it automates the process of
+ building, cleaning, and installing Debian packages, making it easier
+ for developers to manage their packages.
