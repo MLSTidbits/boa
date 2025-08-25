@@ -3,9 +3,92 @@
 # Copyright (c) 2025 MLS Tidbits <contact@mlstidbits.com>
 # All rights reserved.
 
+function generateChangelog () {
+
+    # Get the list of unique commit dates in reverse chronological order
+    _commitDates=$(git log --date=short --pretty=format:'%ad' | sort -ur)
+    _fistCommitDate=$(git log --date=short --pretty=format:'%ad' | tail -n 1)
+
+    _changelogFile="debian/changelog"
+
+    _changelogIteration="$(yq '.changelog.iteration' boa.yaml | tr -d '"')"
+    echo "$_changelogIteration"
+    _changelogUrgency="$(yq '.changelog.urgency' boa.yaml | tr -d '"')"
+
+    # Check if the system is 64-bit
+    test "$(uname -m)" = "x86_64" || test "$(uname -m)" = "aarch64" || {
+        print_info "none 64-bit system detected --- exiting" ; exit 1
+    }
+
+    if test -f "$_changelogFile" ; then rm -f "$_changelogFile" ; fi
+
+    # Iterate over each date # 2089492222
+    for d in $_commitDates; do
+
+        _gitBranch=$(git rev-parse --abbrev-ref HEAD)
+
+        # Check if the branch is for development/testing or main branch.
+        case "$_gitBranch" in
+            main|master|stable|release|production ) _releaseType="stable"   ;;
+            dev|development|unstable|testing      ) _releaseType="unstable" ;;
+            *                                     ) _releaseType="stable"   ;;
+        esac
+
+        # Get the list of commits for the current date
+        _commits=$(git log "${_gitBranch}" --since="$d 00:00" --until="$d 23:59" --pretty=format:'%h')
+
+        test -n "$_commits" || _commits=$(git log --since="$d 00:00" --pretty=format:'%h')
+
+        # Get the author name and email from the latest commit of the day
+        _latestCommit=$(echo "$_commits" | head -n 1)
+        _authorName=$(git log -1 --format='%an' "$_latestCommit")
+        _authorEmail=$(git log -1 --format='%ae' "$_latestCommit")
+
+        # Count the number of commits and reverse the order
+        mapfile -t commitCount < <(git rev-list HEAD --since="$_fistCommitDate" --until="$d 23:59")
+
+        _major=0 ; _minor=0 ; _patch=0
+
+        for ((i=0; i<${#commitCount[@]}; i++)); do
+            _patch=$(( _patch + 1 ))
+            (( _patch == _changelogIteration )) && { _patch=0 ; _minor=$(( _minor + 1 )) ; }
+            (( _minor == _changelogIteration )) && { _minor=0 ; _major=$(( _major + 1 )) ; }
+        done
+
+        versionCode="${_major}.${_minor}.${_patch}"
+
+        # Format the date for the changelog entry
+        _changelogDate=$(date -d "$d" '+%a, %d %b %Y')
+
+        # Start the changelog entry
+        {
+
+            echo "${_packageName} (${versionCode}) ${_releaseType}; urgency=$_changelogUrgency"
+            echo ""
+
+            # Add each commit message to the changelog entry
+            for commit in $_commits; do
+                _commitMessage=$(git log -1 --pretty=format:'%s' "$commit")
+                echo "  * $_commitMessage"
+            done
+
+            # End the changelog entry
+            echo ""
+            echo " -- ${_authorName} <${_authorEmail}>  ${_changelogDate} 00:00:00 +0000"
+            echo ""
+
+        } | tee -a "$_changelogFile" > /dev/null
+
+        # Amend the version number to the version file int the root directory
+    done
+
+    _currentVersion=$(grep -oP '(?<=\()\d+\.\d+\.\d+(?=\))' "$_changelogFile" | head -n 1)
+
+    echo "${_currentVersion}" | tee doc/version > /dev/null
+
+}
+
 set -euo pipefail
-
-
 
 _appName="boa"
 _appVersion=$(cat /usr/share/doc/boa/version 2> /dev/null || echo "unknown")
@@ -16,6 +99,9 @@ test -f "boa.yaml" || { echo "Error: boa.yaml file not found!" ; exit 1 ; }
 _format="$(yq '.format' boa.yaml | tr -d '"')"
 [ "$_format" = "yaml" ] || {
 echo "Error: boa.yaml file is not in the correct format!" ; exit 1 ; }
+_packageName="$(yq '.application' boa.yaml | tr -d '"')"
+[ -n "$_packageName" ] || {
+echo "Error: Application name not specified in boa.yaml!" ; exit 1 ; }
 
 _cmd="dpkg-buildpackage"
 
@@ -67,3 +153,5 @@ else
     _signPause="$(yq '.sign.pause' boa.yaml | tr -d '"')"
     [ "$_signPause" = "true" ] && _cmd+=" --sign-pause"
 fi
+
+test "$(yq '.changelog.enable' boa.yaml | tr -d '"')" = "true" && generateChangelog "$@"
