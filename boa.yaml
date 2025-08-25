@@ -1,5 +1,6 @@
 # General configuration for `boa`.
 format: yaml
+application: boa
 
 # This file is used to configure the behavior of `boa` and should be placed
 # in the root of your project directory.
