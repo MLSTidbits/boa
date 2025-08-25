@@ -23,3 +23,42 @@
 #override_dh_auto_configure:
 #	dh_auto_configure -- \
 #	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)
+
+build: build-stamp
+
+build-stamp:
+	dh_auto_build
+	touch $@
+
+clean:
+	dh_auto_clean
+	rm -f build-stamp
+
+install: build clean
+	dh_testdir
+	dh_testroot
+	dh_prep
+
+binary-indep: install
+	dh_installdocs
+	dh_install
+	dh_bash-completion
+	dh_installchangelogs
+	dh_installsystemd
+	dh_lintian
+	dh_installman
+	dh_installmime
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch: build install
+
+binary: binary-indep binary-arch
+
+.PHONY: build clean install binary-indep binary-arch binary
