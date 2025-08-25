@@ -16,8 +16,8 @@ debian/files
 debian/*.ex
 debian/*.debhelper
 debian/*.substvars
-debian/ddnsd/
+debian/boa/
 
 doc/version
-man/ddnsd.1
-man/ddnsd.conf.5
+man/boa.1
+man/boa.conf.5
