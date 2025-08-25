@@ -1,12 +1,23 @@
 .vscode/
 
 build/
+dist/
+
+changelog
 
 *.gz
-*.xz
 *.deb
-*.tar
-dist/
-changelog
-version
-md5sums
+
+# Ignore the following from the `debian` directory since
+# they are generated during the build process and should
+# not be committed to the repository.
+debian/.debhelper/
+debian/files
+debian/*.ex
+debian/*.debhelper
+debian/*.substvars
+debian/ddnsd/
+
+doc/version
+man/ddnsd.1
+man/ddnsd.conf.5
