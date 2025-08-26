@@ -25,10 +25,8 @@ check_builddeps: true
 #   Options: integer or "auto"
 jobs: auto
 
-# Configuration for signing the built packages.
-no_sign: false
-
 sign:
+  enable: true
   # Set what backend to use for signing packages. The default is `auto` and
   # mostly be `gpg`. Options: "sop", "sq" or "gpg".
   backend: gpg
