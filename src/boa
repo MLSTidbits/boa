@@ -107,7 +107,7 @@ _cmd="dpkg-buildpackage"
 _build="$(yq '.build' boa.yaml | tr -d '"')"
 
 case "$_build" in
-    source|binary|source,binary) _cmd+=" --build=$_build" ;;
+    source|binary|source,binary ) _cmd+=" --build=$_build" ;;
     *) echo "Error: Invalid build type specified in boa.yaml!" ; exit 1 ;;
 esac
 
@@ -128,22 +128,27 @@ _checkBuildDeps="$(yq '.check_builddeps' boa.yaml | tr -d '"')"
 # Verify that the jobs value is valid
 _jobs="$(yq '.jobs' boa.yaml | tr -d '"')"
 case "$_jobs" in
-    auto) _cmd+=" --jobs=$_jobs" ;;
-    [0-9]*[0-9])
+    auto                        ) _cmd+=" --jobs=$_jobs" ;;
+    [0-9]*[0-9]                 )
         test "$_jobs" -gt "$(nproc --all)" && {
         echo "Error: Jobs value cannot exceed the number of CPU cores!" ; exit 1 ; }
         _cmd+=" --jobs=$_jobs"
     ;;
-    *) test "$_jobs" -ge 1 || { echo "Error: Jobs value must be at least 1!" ; exit 1 ; } ;;
+    *                           )
+        test "$_jobs" -ge 1 || {
+        echo "Error: Jobs value must be at least 1!" ; exit 1 ; } ;;
 esac
 
-if [ "$(yq '.no_sign' boa.yaml | tr -d '"')" = "true" ]; then
+if [ "$(yq '.sign.enable' boa.yaml | tr -d '"')" = "false" ]; then
     _cmd+=" --no-sign"
-else
+elif [ "$(yq '.sign.enable' boa.yaml | tr -d '"')" = "true" ]; then
     _signBackend="$(yq '.sign.backend' boa.yaml | tr -d '"')"
     case "$_signBackend" in
-        sop|sq|gpg) _cmd+=" --sign-backend=$_signBackend" ;;
-        *) echo "Error: Invalid sign backend specified in boa.yaml!" ; exit 1 ;;
+        sop|sq|gpg              ) _cmd+=" --sign-backend=$_signBackend" ;;
+        auto                    ) ;;
+        *                       )
+            echo "Error: Invalid sign backend specified in boa.yaml!" ; exit 1
+        ;;
     esac
 
     _signKeyID="$(yq '.sign.keyid' boa.yaml | tr -d '"')"
