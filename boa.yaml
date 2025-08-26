@@ -41,7 +41,7 @@ changelog:
   enable: true
   # Most versions use the format `major.minor.patch (semantic versioning)`.
   # How offend should the version number be incrementally updated to the
-  # next the syntax version number should be set to the next one.
+  # next the semantic version number should be set to the next one.
   # Usage: 1 - 99
   iteration: 9
   urgency: medium
