@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2025 MLS Tidbits <contact@mlstidbits.com>
-# All rights reserved.
+# Copyright (c) 2025 MLS Tidbits <contact@mlstidbits.com> All rights reserved.
+
+function print-info () {
+
+    case "$_1" in
+        info) echo -e "\e[32m[INFO]\e[0m $_2" ;;
+        warn) echo -e "\e[33m[WARN]\e[0m $_2" ;;
+        err ) echo -e "\e[31m[ERROR]\e[0m $_2" ; exit 1 ;;
+        *   ) echo -e "\e[32m[INFO]\e[0m $_1" ;;
+    esac
+
+}
 
 function generateChangelog () {
 
@@ -13,11 +23,6 @@ function generateChangelog () {
 
     _changelogIteration="$(yq '.changelog.iteration' boa.yaml | tr -d '"')"
     _changelogUrgency="$(yq '.changelog.urgency' boa.yaml | tr -d '"')"
-
-    # Check if the system is 64-bit
-    test "$(uname -m)" = "x86_64" || test "$(uname -m)" = "aarch64" || {
-        print_info "none 64-bit system detected --- exiting" ; exit 1
-    }
 
     if test -f "$_changelogFile" ; then rm -f "$_changelogFile" ; fi
 
@@ -93,14 +98,25 @@ _appName="boa"
 _appVersion=$(cat /usr/share/doc/boa/version 2> /dev/null || echo "unknown")
 
 # Verify that the boa.yaml file exists and is in the correct format
-test -f "boa.yaml" || { echo "Error: boa.yaml file not found!" ; exit 1 ; }
+test -f "boa.yaml" || print-info "err" "boa.yaml file not found!"
 
 _format="$(yq '.format' boa.yaml | tr -d '"')"
-[ "$_format" = "yaml" ] || {
-echo "Error: boa.yaml file is not in the correct format!" ; exit 1 ; }
+[ "$_format" = "yaml" ] || print-info "err" "Invalid format specified in boa.yaml!"
+
 _packageName="$(yq '.application' boa.yaml | tr -d '"')"
-[ -n "$_packageName" ] || {
-echo "Error: Application name not specified in boa.yaml!" ; exit 1 ; }
+[ -n "$_packageName" ] || print-info "err" "Application name not specified in boa.yaml!"
+
+[[ -z "$1" ]] && boa build
+
+case "$1" in
+    clean               )
+        rm -rf debian/{.debhelper,*.substvars,debian/"$_packageName",debian/$_packageName-*} \
+        debian/file
+        exit 0
+    ;;
+    build              ) ;;
+    *                  ) ;;
+esac
 
 _cmd="dpkg-buildpackage"
 
@@ -130,13 +146,14 @@ _jobs="$(yq '.jobs' boa.yaml | tr -d '"')"
 case "$_jobs" in
     auto                        ) _cmd+=" --jobs=$_jobs" ;;
     [0-9]*[0-9]                 )
-        test "$_jobs" -gt "$(nproc --all)" && {
-        echo "Error: Jobs value cannot exceed the number of CPU cores!" ; exit 1 ; }
+        test "$_jobs" -gt "$(nproc --all)" &&
+        print-info "warn" "Jobs value exceeds available CPU/Threads!"
         _cmd+=" --jobs=$_jobs"
     ;;
     *                           )
-        test "$_jobs" -ge 1 || {
-        echo "Error: Jobs value must be at least 1!" ; exit 1 ; } ;;
+        test "$_jobs" -ge 1 ||
+        print-info "warn" "Invalid jobs value specified in boa.yaml!"
+    ;;
 esac
 
 if [ "$(yq '.sign.enable' boa.yaml | tr -d '"')" = "false" ]; then
@@ -161,3 +178,7 @@ fi
 test "$(yq '.changelog.enable' boa.yaml | tr -d '"')" = "true" && generateChangelog "$@"
 
 eval "$_cmd" # Execute the build command
+
+print-info "info" "$_appName v$_appVersion build process completed!"
+
+exit 0
