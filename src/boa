@@ -4,7 +4,7 @@
 
 function print-info () {
 
-    case "$_1" in
+    case "$1" in
         info) echo -e "\e[32m[INFO]\e[0m $_2" ;;
         warn) echo -e "\e[33m[WARN]\e[0m $_2" ;;
         err ) echo -e "\e[31m[ERROR]\e[0m $_2" ; exit 1 ;;
