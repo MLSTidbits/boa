@@ -67,7 +67,7 @@ function generateChangelog () {
         # Start the changelog entry
         {
 
-            echo "${_packageName} (${versionCode}) ${_releaseType}; urgency=$_changelogUrgency"
+            echo "${packageName} (${versionCode}) ${_releaseType}; urgency=$_changelogUrgency"
             echo ""
 
             # Add each commit message to the changelog entry
@@ -92,93 +92,94 @@ function generateChangelog () {
 
 }
 
-set -euo pipefail
+# Uncomment for debugging
+#set -euox pipefail
 
-_appName="boa"
-_appVersion=$(cat /usr/share/doc/boa/version 2> /dev/null || echo "unknown")
+appName="boa"
+appVersion=$(cat /usr/share/doc/boa/version 2> /dev/null || echo "unknown")
 
-# Verify that the boa.yaml file exists and is in the correct format
-test -f "boa.yaml" || print-info "err" "boa.yaml file not found!"
+[[ ! -f "./.env" ]] &&
+print-info "err" ".env file not found! Please create one based on the .env.example file."
 
-_format="$(yq '.format' boa.yaml | tr -d '"')"
-[ "$_format" = "yaml" ] || print-info "err" "Invalid format specified in boa.yaml!"
+source ./.env
 
-_packageName="$(yq '.application' boa.yaml | tr -d '"')"
-[ -n "$_packageName" ] || print-info "err" "Application name not specified in boa.yaml!"
+### Build options ###
+build="${BUILD:-binary}"
+preClean="${PRE_CLEAN:-true}"
+postClean="${POST_CLEAN:-false}"
+checkBuildDeps="${CHECKBUILDDEPS:-true}"
+jobs="${JOBS:-auto}"
 
-[[ -z "$1" ]] && boa build
+### Signing options ###
+signEnable="${SIGN:-false}"
+signBackend="${BACKEND:-auto}"
+signKeyID="${KEYID:-}"
+signPause="${PAUSE:-false}"
 
-case "$1" in
-    clean               )
-        rm -rf debian/{.debhelper,*.substvars,debian/"$_packageName",debian/$_packageName-*} \
-        debian/file
-        exit 0
-    ;;
-    build              ) ;;
-    *                  ) ;;
-esac
+### Changelog options ###
+changelogEnable="${CHANGELOG_ENABLE:-true}"
+changelogIteration="${CHANGELOG_ITERATION:-15}"
+changelogUrgency="${CHANGELOG_URGENCY:-low}"
 
-_cmd="dpkg-buildpackage"
+packageName="$(basename "$(pwd)")"
 
-_build="$(yq '.build' boa.yaml | tr -d '"')"
+cmd="dpkg-buildpackage"
 
-case "$_build" in
-    source|binary|source,binary ) _cmd+=" --build=$_build" ;;
+case "$build" in
+    source|binary|source,binary ) cmd+=" --build=$build"                ;;
     *) echo "Error: Invalid build type specified in boa.yaml!" ; exit 1 ;;
 esac
 
-_noPreClean="$(yq '.no_pre_clean' boa.yaml | tr -d '"')"
+# Verify pre-clean option
+[[ "$preClean" == "true" ]] && cmd+=" --pre-clean"
+[[ "$preClean" == "false" ]] && cmd+=" --no-pre-clean"
 
-[ "$_noPreClean" = "true" ] && _cmd+=" --no-pre-clean"
-[ "$_noPreClean" = "false" ] && _cmd+=" --pre-clean"
+# Verify post-clean option
+[[ "$postClean" == "true" ]] && cmd+=" --post-clean"
+[[ "$postClean" == "false" ]] && cmd+=" --no-post-clean"
 
-_noPostClean="$(yq '.no_post_clean' boa.yaml | tr -d '"')"
-
-[ "$_noPostClean" = "true" ] && _cmd+=" --no-post-clean"
-[ "$_noPostClean" = "false" ] && _cmd+=" --post-clean"
-
-_checkBuildDeps="$(yq '.check_builddeps' boa.yaml | tr -d '"')"
-
-[ "$_checkBuildDeps" = "true" ] && _cmd+=" --check-builddeps"
+[[ "$checkBuildDeps" == "true" ]] && cmd+=" --check-builddeps"
 
 # Verify that the jobs value is valid
-_jobs="$(yq '.jobs' boa.yaml | tr -d '"')"
-case "$_jobs" in
-    auto                        ) _cmd+=" --jobs=$_jobs" ;;
+case "$jobs" in
+    auto                        ) cmd+=" --jobs=$jobs" ;;
     [0-9]*[0-9]                 )
-        test "$_jobs" -gt "$(nproc --all)" &&
+        test "$jobs" -gt "$(nproc --all)" &&
         print-info "warn" "Jobs value exceeds available CPU/Threads!"
-        _cmd+=" --jobs=$_jobs"
+        cmd+=" --jobs=$jobs"
     ;;
     *                           )
-        test "$_jobs" -ge 1 ||
+        test "$jobs" -ge 1 ||
         print-info "warn" "Invalid jobs value specified in boa.yaml!"
     ;;
 esac
 
-if [ "$(yq '.sign.enable' boa.yaml | tr -d '"')" = "false" ]; then
-    _cmd+=" --no-sign"
-elif [ "$(yq '.sign.enable' boa.yaml | tr -d '"')" = "true" ]; then
-    _signBackend="$(yq '.sign.backend' boa.yaml | tr -d '"')"
-    case "$_signBackend" in
-        sop|sq|gpg              ) _cmd+=" --sign-backend=$_signBackend" ;;
+[[ "$signEnable" == "false" ]] && cmd+=" --no-sign"
+
+# Only add signing options if signing is enabled
+if [[ "$signEnable" == "true"  ]] ; then
+
+    case "$signBackend" in
+        sop|sq|gpg              ) cmd+=" --sign-backend=$signBackend" ;;
         auto                    ) ;;
         *                       )
             echo "Error: Invalid sign backend specified in boa.yaml!" ; exit 1
         ;;
     esac
 
-    _signKeyID="$(yq '.sign.keyid' boa.yaml | tr -d '"')"
-    [ -n "$_signKeyID" ] && _cmd+=" --sign-keyid=$_signKeyID"
+    if [[ -z "$signKeyID" ]]; then
+        print-info "error" "No signing key ID specified in .env file!"
+    else
+        cmd+=" --sign-keyid=$signKeyID"
+    fi
 
-    _signPause="$(yq '.sign.pause' boa.yaml | tr -d '"')"
-    [ "$_signPause" = "true" ] && _cmd+=" --sign-pause"
+    [[ "$signPause" == "true" ]] && cmd+=" --sign-pause"
 fi
 
-test "$(yq '.changelog.enable' boa.yaml | tr -d '"')" = "true" && generateChangelog "$@"
+[[ "$changelogEnable" == "true" ]] && generateChangelog
 
-eval "$_cmd" # Execute the build command
+eval "$cmd" # Execute the build command
 
-print-info "info" "$_appName v$_appVersion build process completed!"
+print-info "info" "$appName v$appVersion build process completed successfully."
 
 exit 0
