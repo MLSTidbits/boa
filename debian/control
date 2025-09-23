@@ -12,7 +12,8 @@ Rules-Requires-Root: no
 
 Package: boa
 Architecture: any
-Depends: dh-make, ${misc:Depends}, ${shlibs:Depends}, git, boa-tools
+Depends:
+ dh-make, git, build-essential, cmake, dpkg-dev
 Description: Boa is a wrapper script for building Debian packages.
  Using a simple .env configuration file, it automates the process of building
  of Debian packages, making it easier for developers to manage their packages.
