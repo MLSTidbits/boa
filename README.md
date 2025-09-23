@@ -14,7 +14,6 @@
 ## Features
 
 - Simple and easy to use
-- YAML configuration for easier readability
 - Supports multiple architectures (amd64, arm64, etc.)
 - Auto semantic versioning VIA git logs
 - Generates Debian changelog
@@ -22,35 +21,52 @@
 
 ## Installation
 
-The best way to install **BOA** is to add the [repository](https://archive.mlstidbits.com/) to your system's package manager and install it using `apt`.
+The best way to install **BOA** is to add the [repository](https://archive.mlstidbits.com/) to your system's package manager and install it using `apt`. Then update your package list and install with `sudo apt update && sudo apt install boa --yes`
 
-```bash
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/MLSTidbits.gpg] https://archive.mlstidbits.com/ stable main" | sudo tee /etc/apt/sources.list.d/MLSTidbits.list
+## Configuration
 
-wget -qO - https://archive.mlstidbits.com/key/MLSTidbits.gpg | gpg --dearmor | sudo dd of=/usr/share/keyrings/MLSTidbits.gpg
-```
+To use **BOA**, you need to create a `.env` file in the root of your project. This file should contain the following variables:
 
-Then update your package list and install with `sudo apt update && sudo apt install boa --yes`
+### Environment Variables
+
+#### Build Options
+
+| Variable          | Description                                              | Value                                  |
+| ----------------- | -------------------------------------------------------- | -------------------------------------- |
+| `BUILD`           | What type of build you want to perform.                  | `binary`, `source` or `both`           |
+| `PRE_CLEAN`       | Whether to clean the build directory before building.    | `true` or `false`                      |
+| `POST_CLEAN`      | Whether to clean the build directory after building.     | `true` or `false`                      |
+| `CHECK_BUILDDEPS` | Whether to check for build dependencies before building. | `true` or `false`                      |
+| `JOBS`            | Number of cores/threads to use for building.             | `auto` or Integer value (e.g., `4`)    |
+
+#### Signing Options
+
+| Variable          | Description                                              | Value                                  |
+| ----------------- | -------------------------------------------------------- | -------------------------------------- |
+| `SIGN`            | Whether to sign the package using GPG.                   | `true` or `false`                      |
+| `BACKEND`         | The backend to use for building the package.             | `gpg`, `sop` or `sq`                   |
+| `PAUSE`           | Whether to pause before signing the package.             | `true` or `false`                      |
+
+#### Changelog Options
+
+| Variable          | Description                                              | Value                                  |
+| ----------------- | -------------------------------------------------------- | -------------------------------------- |
+| `CHANGELOG`       | Whether to generate a changelog from git commits.        | `true` or `false`                      |
+| `URGENCY`         | The urgency level for the changelog.                     | `low`, `medium`, `high` or `emergency` |
 
 ## Usage
 
-To use **BOA**, create a `boa.yaml` configuration file in the root of your project. Here is an example configuration:
+To build a DEB package using **BOA**, navigate to the root of your project and run the following command and run `boa` in your terminal. If no `.env` file is found, it will use the default values. Once the build boa transfers the build process to `dpkg-buildpackage` and handles the rest.
 
-- `format`: The format of the package. Currently, only `yaml` is supported.
-- `application`: The name of the application/package.
-- `build`: The type of build to perform. Options are `binary`, `source`, or `binary,source`.
-- `no_pre_clean`: If set to `true`, skips the pre-clean step before building.
-- `no_post_clean`: If set to `true`, skips the post-clean step after building.
-- `check_builddeps`: If set to `true`, checks for
-- `jobs`: Number of parallel jobs to use during the build process. Default is `auto`, which lets the system decide based on available CPU cores.
+## TODO
 
-- `sign`:
-  - `enable`: If set to `true`, enables package signing.
-  - `backend`: The backend to use for signing packages. Options are `sop`, `sq`, or `gpg`. Default is `auto`. If default is used the main build process will try to determine the best backend available on the system without user flag.
-  - `keyid`: The GPG key ID to use for signing packages. If not specified, the default key will be used.
-  - `pause`: If set to `true`, pauses the build process to allow for manual signing.
+- [] Complete `dpkg-buildpackage` options support.
+- [] Add option to manual install packages.
 
-- `changelog`:
-  - `enable`: If set to `true`, enables automatic changelog generation.
-  - `iteration`: The iteration number for versioning. This determines how often the version number is incremented. Options are `1` to `99`.
-  - `urgency`: The urgency level for the changelog entry. Options are `low`, `medium`, `high`, or `emergency`.
+## License
+
+This project is licensed under the GPL-3.0 License - see the [LICENSE](COPYING) file for details.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
