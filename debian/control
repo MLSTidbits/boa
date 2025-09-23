@@ -19,29 +19,3 @@ Description: Boa is a wrapper script for building Debian packages.
  .
  Boa supports features like changelog generation, GPG signing, and parallel
  builds, enhancing the package management experience.
-
-Package: boa-clean
-Architecture: any
-Depends: boa-tools
-Description: Clean up build artifacts created by boa
- This package provides a command to clean up build artifacts created by
- the boa package, helping to maintain a tidy development environment.
-
-Package: boa-gpg
-Architecture: any
-Depends: boa-tools, gnupg
-Description: A wrapper for creating and managing GPG keys for package signing
- This package provides a wrapper script to simplify the creation and management
- of GPG keys used for signing Debian packages, enhancing security and trust.
-
-Package: boa-tools
-Architecture: any
-Depends:
- boa, boa-clean, boa-gpg, build-essential, devscripts, lintian, dh-make, fakeroot
-Description: Full suite of tools for building and managing Debian packages
- This package includes a comprehensive set of tools to facilitate the building,
- signing, and management of Debian packages using the boa wrapper script.
- .
- It aims to streamline the package development workflow for developers.
- Provides additional utilities to enhance the functionality of the boa package.
- .
