@@ -21,9 +21,6 @@ function generateChangelog () {
 
     _changelogFile="debian/changelog"
 
-    _changelogIteration="$(yq '.changelog.iteration' boa.yaml | tr -d '"')"
-    _changelogUrgency="$(yq '.changelog.urgency' boa.yaml | tr -d '"')"
-
     if test -f "$_changelogFile" ; then rm -f "$_changelogFile" ; fi
 
     # Iterate over each date # 2089492222
@@ -55,8 +52,8 @@ function generateChangelog () {
 
         for ((i=0; i<${#commitCount[@]}; i++)); do
             _patch=$(( _patch + 1 ))
-            (( _patch == _changelogIteration )) && { _patch=0 ; _minor=$(( _minor + 1 )) ; }
-            (( _minor == _changelogIteration )) && { _minor=0 ; _major=$(( _major + 1 )) ; }
+            (( _patch == changelogIteration )) && { _patch=0 ; _minor=$(( _minor + 1 )) ; }
+            (( _minor == changelogIteration )) && { _minor=0 ; _major=$(( _major + 1 )) ; }
         done
 
         versionCode="${_major}.${_minor}.${_patch}"
@@ -67,7 +64,7 @@ function generateChangelog () {
         # Start the changelog entry
         {
 
-            echo "${packageName} (${versionCode}) ${_releaseType}; urgency=$_changelogUrgency"
+            echo "${packageName} (${versionCode}) ${_releaseType}; urgency=$changelogUrgency"
             echo ""
 
             # Add each commit message to the changelog entry
