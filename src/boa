@@ -175,7 +175,7 @@ fi
 
 [[ "$changelogEnable" == "true" ]] && generateChangelog
 
-eval "$cmd" # Execute the build command
+eval "$cmd" || print-info "err" "Build process failed!"
 
 print-info "info" "$appName v$appVersion build process completed successfully."
 
