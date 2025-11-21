@@ -4,12 +4,9 @@
 
 function print-info () {
 
-    case "$1" in
-        info) echo -e "\e[32m[INFO]\e[0m $2" ;;
-        warn) echo -e "\e[33m[WARN]\e[0m $2" ;;
-        err ) echo -e "\e[31m[ERROR]\e[0m $2" ; exit 1 ;;
-        *   ) echo -e "\e[32m[INFO]\e[0m $2" ;;
-    esac
+    [[ "$1" == "" || "$1" == "info" ]] && echo -e "\e[32m[INFO]\e[0m $2"
+    [[ "$1" == "warning" ]] && echo -e "\e[33m[WARN]\e[0m $2"
+    [[ "$1" == "error" ]] && { echo -e "\e[31m[ERROR]\e[0m $2" ; exit 1 ; }
 
 }
 
@@ -96,7 +93,7 @@ appName="boa"
 appVersion=$(cat /usr/share/doc/boa/version 2> /dev/null || echo "unknown")
 
 [[ ! -f "./.env" ]] &&
-print-info "err" ".env file not found! Please create one based on the .env.example file."
+print-info "error" ".env file not found! Please create one based on the .env.example file."
 
 source ./.env
 
@@ -142,12 +139,12 @@ case "$jobs" in
     auto                        ) cmd+=" --jobs=$jobs" ;;
     [0-9]*[0-9]                 )
         test "$jobs" -gt "$(nproc --all)" &&
-        print-info "warn" "Jobs value exceeds available CPU/Threads!"
+        print-info "warning" "Jobs value exceeds available CPU/Threads!"
         cmd+=" --jobs=$jobs"
     ;;
     *                           )
         test "$jobs" -ge 1 ||
-        print-info "warn" "Invalid jobs value specified in boa.yaml!"
+        print-info "warning" "Invalid jobs value specified in boa.yaml!"
     ;;
 esac
 
@@ -165,7 +162,7 @@ if [[ "$signEnable" == "true"  ]] ; then
     esac
 
     if [[ -z "$signKeyID" ]]; then
-        print-info "error" "No signing key ID specified in .env file!"
+        print-info "erroror" "No signing key ID specified in .env file!"
     else
         cmd+=" --sign-keyid=$signKeyID"
     fi
@@ -175,7 +172,7 @@ fi
 
 [[ "$changelogEnable" == "true" ]] && generateChangelog
 
-eval "$cmd" || print-info "err" "Build process failed!"
+eval "$cmd" || print-info "error" "Build process failed!"
 
 print-info "info" "$appName v$appVersion build process completed successfully."
 
