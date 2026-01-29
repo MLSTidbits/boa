@@ -53,7 +53,18 @@ function generateChangelog () {
             (( _minor == changelogIteration )) && { _minor=0 ; _major=$(( _major + 1 )) ; }
         done
 
-        versionCode="${_major}.${_minor}.${_patch}"
+        # Sort the hash based on the date the commit was made
+        if [[ "$useCommitHash" == "true" ]] ; then
+
+            versionCode="$d+git~$(echo "$_commits" | xargs -I {} git show -s --format='%ct %h' {} |
+            sort -n | awk '{print $2}'| head -n 1)"
+        else
+            versionCode="${_major}.${_minor}.${_patch}"
+        fi
+
+        # In some cases an app is just being packaged so the version should be the short commit hash
+        # [[ "$useCommitHash" == "true" ]] && versionCode="$(git rev-parse --short HEAD)"
+        # [[ "$useCommitHash" == "false" ]] && versionCode="${_major}.${_minor}.${_patch}"
 
         # Format the date for the changelog entry
         _changelogDate=$(date -d "$d" '+%a, %d %b %Y')
@@ -80,9 +91,7 @@ function generateChangelog () {
         # Amend the version number to the version file int the root directory
     done
 
-    _currentVersion=$(grep -oP '(?<=\()\d+\.\d+\.\d+(?=\))' "$_changelogFile" | head -n 1)
-
-    echo "${_currentVersion}" | tee doc/version > /dev/null
+    head -n 1 "$_changelogFile" | awk -F'[ ()]' '{print $3}' | tee doc/version > /dev/null
 
 }
 
@@ -114,6 +123,7 @@ signPause="${PAUSE:-false}"
 changelogEnable="${CHANGELOG_ENABLE:-true}"
 changelogIteration="${CHANGELOG_ITERATION:-15}"
 changelogUrgency="${CHANGELOG_URGENCY:-low}"
+useCommitHash="${CHANGELOG_USE_COMMIT_HASH:-false}"
 
 packageName="$(basename "$(pwd)")"
 
