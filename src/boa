@@ -88,7 +88,17 @@ function generateChangelog () {
 
         } | tee -a "$_changelogFile" > /dev/null
 
-        # Amend the version number to the version file int the root directory
+        # Count the number of lines in the changelog file and limit to what is specified via the
+        # changelogLineLimit variable and stop if the limit is reached to prevent excessively long
+        # changelog.
+        _lineCount=$(wc -l < "$_changelogFile")
+        if [[ "$_lineCount" -gt "$changelogLineLimit" ]]; then
+            _tempFile=$(mktemp)
+            head -n "$changelogLineLimit" "$_changelogFile" > "$_tempFile"
+            mv "$_tempFile" "$_changelogFile"
+            break
+        fi
+
     done
 
     head -n 1 "$_changelogFile" | awk -F'[ ()]' '{print $3}' | tee doc/version > /dev/null
@@ -122,6 +132,7 @@ signPause="${PAUSE:-false}"
 ### Changelog options ###
 changelogEnable="${CHANGELOG_ENABLE:-true}"
 changelogIteration="${CHANGELOG_ITERATION:-15}"
+changelogLineLimit="${CHANGELOG_LINE_LIMIT:-10000}"
 changelogUrgency="${CHANGELOG_URGENCY:-low}"
 useCommitHash="${CHANGELOG_USE_COMMIT_HASH:-false}"
 
