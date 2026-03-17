@@ -132,7 +132,7 @@ signPause="${PAUSE:-false}"
 ### Changelog options ###
 changelogEnable="${CHANGELOG_ENABLE:-true}"
 changelogIteration="${CHANGELOG_ITERATION:-15}"
-changelogLineLimit="${CHANGELOG_LINE_LIMIT:-10000}"
+changelogLineLimit="${CHANGELOG_LINE_LIMIT:-}"
 changelogUrgency="${CHANGELOG_URGENCY:-low}"
 useCommitHash="${CHANGELOG_USE_COMMIT_HASH:-false}"
 
