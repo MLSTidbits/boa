@@ -78,22 +78,20 @@ function generateChangelog () {
 
         # Start the changelog entry
         {
-
             echo "${packageName} (${versionCode}) ${_releaseType}; urgency=$changelogUrgency"
             echo ""
 
             # Add each commit message to the changelog entry
-            for commit in $_commits; do
+            while IFS= read -r commit; do
                 _commitMessage=$(git log -1 --pretty=format:'%s' "$commit")
                 echo "  * $_commitMessage"
-            done
+            done < <(printf '%s\n' "$_commits")
 
             # End the changelog entry
             echo ""
             echo " -- ${_authorName} <${_authorEmail}>  ${_changelogDate} 00:00:00 +0000"
             echo ""
-
-        } | tee -a "$_changelogFile" > /dev/null
+        } >> "$_changelogFile"
 
     done
 
