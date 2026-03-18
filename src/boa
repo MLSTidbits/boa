@@ -69,6 +69,13 @@ function generateChangelog () {
         # Format the date for the changelog entry
         _changelogDate=$(date -d "$d" '+%a, %d %b %Y')
 
+        [[ -f "$_changelogFile" ]] && _lineCount=$(wc -l < "$_changelogFile")
+
+        if [[ -n "$changelogLineLimit" ]] && [[ "$_lineCount" -gt "$changelogLineLimit" ]]; then
+            print-info "warning" "Changelog line limit of $changelogLineLimit exceeded, stopping changelog generation!"
+            break 2
+        fi
+
         # Start the changelog entry
         {
 
@@ -88,20 +95,10 @@ function generateChangelog () {
 
         } | tee -a "$_changelogFile" > /dev/null
 
-        # Count the number of lines in the changelog file and limit to what is specified via the
-        # changelogLineLimit variable and stop if the limit is reached to prevent excessively long
-        # changelog.
-        _lineCount=$(wc -l < "$_changelogFile")
-        if [[ "$_lineCount" -gt "$changelogLineLimit" ]]; then
-            _tempFile=$(mktemp)
-            head -n "$changelogLineLimit" "$_changelogFile" > "$_tempFile"
-            mv "$_tempFile" "$_changelogFile"
-            break
-        fi
-
     done
 
-    head -n 1 "$_changelogFile" | awk -F'[ ()]' '{print $3}' | tee doc/version > /dev/null
+    # Remove the extra trailing blank line (Debian changelog requires exactly one)
+    sed -i '${/^$/d}' "$_changelogFile"
 
 }
 
