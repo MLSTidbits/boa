@@ -17,8 +17,7 @@ install:
 	@install -Dm755 $(SOURCE_DIR)/$(APPLICATION) /usr/bin/$(APPLICATION)
 
 # Install the /etc configuration file if it doesn't exist
-	@install -Dm644 $(SOURCE_DIR)/$(APPLICATION).conf \
-		/usr/share/$(APPLICATION)/example.conf
+	@install -Dm644 $(SOURCE_DIR)/example.env /usr/share/$(APPLICATION)/
 
 	@install -Dm755 $(SOURCE_DIR)/$(APPLICATION) /usr/bin/$(APPLICATION)
 
