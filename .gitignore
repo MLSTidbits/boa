@@ -23,3 +23,5 @@ debian/boa-*/
 doc/version
 man/boa.1
 man/boa.conf.5
+
+_build/
