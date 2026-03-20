@@ -18,6 +18,7 @@ debian/*.ex
 debian/*.debhelper
 debian/*.substvars
 debian/boa/
+debian/boa-*/
 
 doc/version
 man/boa.1
