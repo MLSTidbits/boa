@@ -28,13 +28,14 @@ install:
 	@install -Dm644 $(SOURCE_DIR)/example.env /usr/share/$(APPLICATION)/example.env
 
 uninstall:
-	@rm -f /usr/bin/$(APPLICATION)
-	@rm -f /usr/share/man/man5/$(MAN_OUTPUT).gz
-	@rm -rf /usr/share/doc/$(APPLICATION)
-	@rm -rf /usr/share/$(APPLICATION)
+	@rm -rf /usr/bin/$(APPLICATION) \
+		/usr/share/man/man5/$(MAN_OUTPUT).gz \
+		/usr/share/doc/$(APPLICATION) \
+		/usr/share/$(APPLICATION)
 
 _pandoc:
 	@mkdir -p $(BUILD_DIR)/$(MAN_DIR)
+
 	@if ! command -v pandoc >/dev/null ; then \
 		echo 'pandoc could not be found. Please install pandoc to build the manual page.'; \
 		exit 1; \
