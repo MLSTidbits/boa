@@ -8,47 +8,50 @@ SOURCE_DIR = src
 DOC_DIR = doc
 MAN_DIR = man
 
-MAN_PAGE = $(APPLICATION).conf.5.md
-MAN_OUTPUT = $(APPLICATION).conf.5
-
 all: _pandoc _out
 
 clean:
-	rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
 
 install:
 	@install -Dm755 $(SOURCE_DIR)/$(APPLICATION) /usr/bin/$(APPLICATION)
 
-	@install -Dm644 $(BUILD_DIR)/$(MAN_DIR)/$(MAN_OUTPUT) /usr/share/man/man5/$(MAN_OUTPUT)
-	@gzip -9 /usr/share/man/man5/$(MAN_OUTPUT)
+# Install the /etc configuration file if it doesn't exist
+	@install -Dm644 $(SOURCE_DIR)/$(APPLICATION).conf \
+		/usr/share/$(APPLICATION)/example.conf
 
-	@install -Dm644 $(DOC_DIR)/version $(DOC_DIR)/copyright README.md CONTRIBUTING.md CODE_OF_CONDUCT.md \
-		/usr/share/doc/$(APPLICATION)/
+	@install -Dm755 $(SOURCE_DIR)/$(APPLICATION) /usr/bin/$(APPLICATION)
 
-	@install -Dm644 $(SOURCE_DIR)/example.env /usr/share/$(APPLICATION)/example.env
+	@for manpage in $(BUILD_DIR)/$(MAN_DIR)/*; do \
+		section=$$(echo "$$manpage" | sed 's/.*\.\([0-9]\+\)$$/\1/'); \
+		dest=/usr/share/man/man$$section/$$(basename $$manpage); \
+		gzip -9 "$$dest"; \
+	done
+
+	@install -Dm644 $(BUILD_DIR)/$(DOC_DIR)/* /usr/share/doc/$(APPLICATION)/
 
 uninstall:
 	@rm -rf /usr/bin/$(APPLICATION) \
-		/usr/share/man/man5/$(MAN_OUTPUT).gz \
-		/usr/share/doc/$(APPLICATION) \
-		/usr/share/$(APPLICATION)
+		/usr/share/$(APPLICATION)/example.conf \
+		/usr/share/man/man*/*/$(APPLICATION).*.gz \
+		/usr/share/doc/$(APPLICATION)
 
 _pandoc:
 	@mkdir -p $(BUILD_DIR)/$(MAN_DIR)
-
-	@if ! command -v pandoc >/dev/null ; then \
+	@if ! command -v pandoc > /dev/null ; then \
 		echo 'pandoc could not be found. Please install pandoc to build the manual page.'; \
 		exit 1; \
 	fi
 
-	@pandoc -s -t man -o $(BUILD_DIR)/$(MAN_DIR)/$(MAN_OUTPUT) $(MAN_DIR)/$(MAN_PAGE)
+	@for manpage in $(MAN_DIR)/*.md; do \
+		output=$(BUILD_DIR)/$(MAN_DIR)/$$(basename "$${manpage%.md}"); \
+		pandoc -s -t man -o "$$output" "$$manpage"; \
+	done
 
 _out:
-	@mkdir -p $(BUILD_DIR)/doc
 
-	@cp -f $(SOURCE_DIR)/$(APPLICATION) $(BUILD_DIR)/
+	@cp -rf $(SOURCE_DIR)/* $(BUILD_DIR)/
 
-	@cp -f $(DOC_DIR)/version $(DOC_DIR)/copyright README.md CONTRIBUTING.md CODE_OF_CONDUCT.md \
+	@cp -rf $(DOC_DIR) $(BUILD_DIR)/
+	@cp -f README.md CONTRIBUTING.md CODE_OF_CONDUCT.md \
 		$(BUILD_DIR)/$(DOC_DIR)/
-
-	@cp -f $(SOURCE_DIR)/example.env $(BUILD_DIR)/
