@@ -1,4 +1,4 @@
-.PHONY: all clean install _pandoc _out
+.PHONY: all clean install _build/man _build/doc uninstall
 
 APPLICATION = $(shell pwd | xargs basename)
 VERSION = $(shell cat doc/version)
@@ -8,7 +8,7 @@ SOURCE_DIR = src
 DOC_DIR = doc
 MAN_DIR = man
 
-all: _pandoc _out
+all: _build/man _build/doc
 
 clean:
 	@rm -rf $(BUILD_DIR)
@@ -35,22 +35,31 @@ uninstall:
 		/usr/share/man/man*/*/$(APPLICATION).*.gz \
 		/usr/share/doc/$(APPLICATION)
 
-_pandoc:
-	@mkdir -p $(BUILD_DIR)/$(MAN_DIR)
-	@if ! command -v pandoc > /dev/null ; then \
+_build/man:
+	@mkdir -p $@
+	@if ! command -v pandoc >/dev/null 2>&1; then \
 		echo 'pandoc could not be found. Please install pandoc to build the manual page.'; \
 		exit 1; \
 	fi
 
 	@for manpage in $(MAN_DIR)/*.md; do \
-		output=$(BUILD_DIR)/$(MAN_DIR)/$$(basename "$${manpage%.md}"); \
+		output=$@/$$(basename "$${manpage%.md}"); \
+		echo "\e[1;32mMD\e[0m  $$manpage"; \
 		pandoc -s -t man -o "$$output" "$$manpage"; \
 	done
 
-_out:
+_build/doc:
+	@mkdir -p $@
+	@for doc in README.md CONTRIBUTING.md CODE_OF_CONDUCT.md .version doc/copyright; do \
+		if [ -f "$$doc" ]; then \
+			echo "\e[1;32mDC\e[0m  $$doc"; \
+			cp -f "$$doc" $(BUILD_DIR)/$(DOC_DIR)/; \
+		fi; \
+	done
 
-	@cp -rf $(SOURCE_DIR)/* $(BUILD_DIR)/
-
-	@cp -rf $(DOC_DIR) $(BUILD_DIR)/
-	@cp -f README.md CONTRIBUTING.md CODE_OF_CONDUCT.md \
-		$(BUILD_DIR)/$(DOC_DIR)/
+	@for src in $(SOURCE_DIR)/*; do \
+		if [ -f "$$src" ]; then \
+			echo "\e[1;32mSR\e[0m  $$src"; \
+			cp -f "$$src" $(BUILD_DIR)/; \
+		fi; \
+	done
