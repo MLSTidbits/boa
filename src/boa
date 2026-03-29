@@ -98,6 +98,9 @@ function generateChangelog () {
     # Remove the extra trailing blank line (Debian changelog requires exactly one)
     sed -i '${/^$/d}' "$_changelogFile"
 
+    # Set the current version in a version file for use in the build process
+    cat "$_changelogFile" | awk 'NR==1 {print $2}' | tr -d '()' > .version
+
 }
 
 # Uncomment for debugging
