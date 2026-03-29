@@ -1,0 +1,262 @@
+boa (0.6.2ubuntu1) UNRELEASED; urgency=medium
+
+  [ Michael Schaecher ]
+  * Initial commit
+
+  [ MLSTidbits ]
+  * Update README and logo files .
+  * Move copyright file to doc folder.
+  * feat: Add initial configuration file for `boa`
+  * feat: Add general configuration file for `boa` build
+  * feat: Add main script for `boa` build process
+  * fix: Update signing configuration in `boa.yaml`
+  * feat: Add application to give a name value
+  * feat: Implement changelog generation based on commit history
+  * fix: Update .gitignore to include additional build artifacts and directories
+  * refactor: Remove obsolete Debian packaging scripts
+  * fix: Remove debug echo for changelog iteration in generateChangelog function
+  * feat: Add build, clean, and install targets to debian rules
+  * fix: Update .gitignore to include new man page files and correct directory paths
+  * feat: Add initial Debian packaging files for boa project
+  * fix: Remove unused placeholder files from man and src directories
+  * feat: Add boa.conf man page with configuration details for the BOA tool
+  * fix: Correct typo in changelog configuration comment
+  * fix: Update build command options and refine signing configuration in boa.yaml
+  * fix: Remove unused signing configuration from boa.yaml
+  * docs: Enhance README with detailed installation and usage instructions
+  * refactor: Improve print-info function and enhance error handling in boa script
+  * refactor: Remove obsolete configure script and related functions
+  * fix: Correct variable reference in print-info function case statement
+  * fix: Correct variable references in print-info function case statement
+  * refactor: Replace yaml with bash default for better compatibility.
+  * fix: Add .env to .gitignore to prevent committing environment configuration
+  * fix: Correct variable name in changelog generation and improve error handling for .env file
+  * fix: Update configuration file references from YAML to .env in installation scripts
+  * Refactor: Splitting into multiple packages for easier maintainability.
+  * refactor: Remove unused package definitions to streamline control file
+  * refactor: Package dependencies for improved clarity and structure
+  * refactor: Update README to enhance configuration clarity and add new options
+  * refactor: Remove dependency on boa.yaml for changelog iteration and urgency
+  * fix: Improve error handling during build command execution
+  * refactor: Standardize error and warning messages in print-info function
+  * feat: Add option to use commit hash for versioning in changelog generation
+  * feat: Enhance changelog versioning to support commit hash sorting
+  * feat: Limit changelog size based on specified line count to prevent excessive length
+  * feat: Remove default line limit for changelog to allow user-defined settings
+  * feat: Implement changelog line limit check to prevent excessive length during generation.
+  * feat: Refactor changelog generation to use while loop for improved commit message handling
+  * feat: Add man page package and update control file for documentation support
+  * feat: Add documentation files for project structure and guidelines
+  * feat: Add Makefile for building and installing application with manual page support
+  * feat: Update .gitignore to include all files in debian/boa-* directory
+  * feat: Update installation commands for manual pages and example configuration
+  * feat: Add _build/ directory to .gitignore to exclude build artifacts
+  * refactor: Clean up Makefile by consolidating install and uninstall commands
+  * fix: Simplify uninstall commands in Makefile for better readability
+  * refactor: Improve Makefile structure by consolidating manpage installation and cleanup commands
+  * fix: Correct configuration file installation path in Makefile
+  * feat: Add current version extraction to changelog for build process
+  * fix: Correct path to version file in build script
+  * fix: Update paths in boa-docs to reflect new build directory structure
+  * refactor: Restructure Makefile to improve build process for manpages and documentation
+  * fix: Update .gitignore to correctly ignore version file
+
+  [ Michael Schaecher ]
+  * Initial commit
+
+  [ MLSTidbits ]
+  * Update README and logo files .
+  * Move copyright file to doc folder.
+  * feat: Add initial configuration file for `boa`
+  * feat: Add general configuration file for `boa` build
+  * feat: Add main script for `boa` build process
+  * fix: Update signing configuration in `boa.yaml`
+  * feat: Add application to give a name value
+  * feat: Implement changelog generation based on commit history
+  * fix: Update .gitignore to include additional build artifacts and directories
+  * refactor: Remove obsolete Debian packaging scripts
+  * fix: Remove debug echo for changelog iteration in generateChangelog function
+  * feat: Add build, clean, and install targets to debian rules
+  * fix: Update .gitignore to include new man page files and correct directory paths
+  * feat: Add initial Debian packaging files for boa project
+  * fix: Remove unused placeholder files from man and src directories
+  * feat: Add boa.conf man page with configuration details for the BOA tool
+  * fix: Correct typo in changelog configuration comment
+  * fix: Update build command options and refine signing configuration in boa.yaml
+  * fix: Remove unused signing configuration from boa.yaml
+  * docs: Enhance README with detailed installation and usage instructions
+  * refactor: Improve print-info function and enhance error handling in boa script
+  * refactor: Remove obsolete configure script and related functions
+  * fix: Correct variable reference in print-info function case statement
+  * fix: Correct variable references in print-info function case statement
+  * refactor: Replace yaml with bash default for better compatibility.
+  * fix: Add .env to .gitignore to prevent committing environment configuration
+  * fix: Correct variable name in changelog generation and improve error handling for .env file
+  * fix: Update configuration file references from YAML to .env in installation scripts
+  * Refactor: Splitting into multiple packages for easier maintainability.
+  * refactor: Remove unused package definitions to streamline control file
+  * refactor: Package dependencies for improved clarity and structure
+  * refactor: Update README to enhance configuration clarity and add new options
+  * refactor: Remove dependency on boa.yaml for changelog iteration and urgency
+  * fix: Improve error handling during build command execution
+  * refactor: Standardize error and warning messages in print-info function
+  * feat: Add option to use commit hash for versioning in changelog generation
+  * feat: Enhance changelog versioning to support commit hash sorting
+  * feat: Limit changelog size based on specified line count to prevent excessive length
+  * feat: Remove default line limit for changelog to allow user-defined settings
+  * feat: Implement changelog line limit check to prevent excessive length during generation.
+  * feat: Refactor changelog generation to use while loop for improved commit message handling
+  * feat: Add man page package and update control file for documentation support
+  * feat: Add documentation files for project structure and guidelines
+  * feat: Add Makefile for building and installing application with manual page support
+  * feat: Update .gitignore to include all files in debian/boa-* directory
+  * feat: Update installation commands for manual pages and example configuration
+  * feat: Add _build/ directory to .gitignore to exclude build artifacts
+  * refactor: Clean up Makefile by consolidating install and uninstall commands
+  * fix: Simplify uninstall commands in Makefile for better readability
+  * refactor: Improve Makefile structure by consolidating manpage installation and cleanup commands
+  * fix: Correct configuration file installation path in Makefile
+  * feat: Add current version extraction to changelog for build process
+  * fix: Correct path to version file in build script
+  * fix: Update paths in boa-docs to reflect new build directory structure
+  * refactor: Restructure Makefile to improve build process for manpages and documentation
+  * fix: Update .gitignore to correctly ignore version file
+
+ -- Michael Schaecher <michaelschaecher@mlstidbits.com>  Sun, 29 Mar 2026 14:00:48 -0600
+
+boa (0.6.2) stable; urgency=low
+
+  * fix: Update .gitignore to correctly ignore version file
+  * refactor: Restructure Makefile to improve build process for manpages and documentation
+  * fix: Update paths in boa-docs to reflect new build directory structure
+  * fix: Correct path to version file in build script
+  * feat: Add current version extraction to changelog for build process
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Sun, 29 Mar 2026 00:00:00 +0000
+
+boa (0.5.6) stable; urgency=low
+
+  * fix: Correct configuration file installation path in Makefile
+  * refactor: Improve Makefile structure by consolidating manpage installation and cleanup commands
+  * fix: Simplify uninstall commands in Makefile for better readability
+  * refactor: Clean up Makefile by consolidating install and uninstall commands
+  * feat: Add _build/ directory to .gitignore to exclude build artifacts
+  * feat: Update installation commands for manual pages and example configuration
+  * feat: Update .gitignore to include all files in debian/boa-* directory
+  * feat: Add Makefile for building and installing application with manual page support
+  * feat: Add documentation files for project structure and guidelines
+  * feat: Add man page package and update control file for documentation support
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Fri, 20 Mar 2026 00:00:00 +0000
+
+boa (0.4.5) stable; urgency=low
+
+  * feat: Refactor changelog generation to use while loop for improved commit message handling
+  * feat: Implement changelog line limit check to prevent excessive length during generation.
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Wed, 18 Mar 2026 00:00:00 +0000
+
+boa (0.4.3) stable; urgency=low
+
+  * feat: Remove default line limit for changelog to allow user-defined settings
+  * feat: Limit changelog size based on specified line count to prevent excessive length
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Tue, 17 Mar 2026 00:00:00 +0000
+
+boa (0.4.1) stable; urgency=low
+
+  * feat: Enhance changelog versioning to support commit hash sorting
+  * feat: Add option to use commit hash for versioning in changelog generation
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Thu, 29 Jan 2026 00:00:00 +0000
+
+boa (0.3.8) stable; urgency=low
+
+  * refactor: Standardize error and warning messages in print-info function
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Fri, 21 Nov 2025 00:00:00 +0000
+
+boa (0.3.7) stable; urgency=low
+
+  * fix: Improve error handling during build command execution
+  * refactor: Remove dependency on boa.yaml for changelog iteration and urgency
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Thu, 20 Nov 2025 00:00:00 +0000
+
+boa (0.3.5) stable; urgency=low
+
+  * refactor: Update README to enhance configuration clarity and add new options
+  * refactor: Package dependencies for improved clarity and structure
+  * refactor: Remove unused package definitions to streamline control file
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Tue, 23 Sep 2025 00:00:00 +0000
+
+boa (0.3.2) stable; urgency=low
+
+  * Refactor: Splitting into multiple packages for easier maintainability.
+  * fix: Update configuration file references from YAML to .env in installation scripts
+  * fix: Correct variable name in changelog generation and improve error handling for .env file
+  * fix: Add .env to .gitignore to prevent committing environment configuration
+  * refactor: Replace yaml with bash default for better compatibility.
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Mon, 22 Sep 2025 00:00:00 +0000
+
+boa (0.2.6) stable; urgency=low
+
+  * fix: Correct variable references in print-info function case statement
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Sun, 14 Sep 2025 00:00:00 +0000
+
+boa (0.2.5) stable; urgency=low
+
+  * fix: Correct variable reference in print-info function case statement
+
+ -- MLSTidbits <michaelschaecher@howtonebie.com>  Thu, 11 Sep 2025 00:00:00 +0000
+
+boa (0.2.4) stable; urgency=low
+
+  * refactor: Remove obsolete configure script and related functions
+  * refactor: Improve print-info function and enhance error handling in boa script
+
+ -- MLSTidbits <michaelschaecher@howtonebie.com>  Mon, 08 Sep 2025 00:00:00 +0000
+
+boa (0.2.2) stable; urgency=low
+
+  * docs: Enhance README with detailed installation and usage instructions
+  * fix: Remove unused signing configuration from boa.yaml
+  * fix: Update build command options and refine signing configuration in boa.yaml
+
+ -- MLSTidbits <michaelschaecher@howtonebie.com>  Tue, 26 Aug 2025 00:00:00 +0000
+
+boa (0.1.8) stable; urgency=low
+
+  * fix: Correct typo in changelog configuration comment
+  * feat: Add boa.conf man page with configuration details for the BOA tool
+  * fix: Remove unused placeholder files from man and src directories
+  * feat: Add initial Debian packaging files for boa project
+  * fix: Update .gitignore to include new man page files and correct directory paths
+  * feat: Add build, clean, and install targets to debian rules
+  * fix: Remove debug echo for changelog iteration in generateChangelog function
+  * refactor: Remove obsolete Debian packaging scripts
+  * fix: Update .gitignore to include additional build artifacts and directories
+
+ -- MLSTidbits <michaelschaecher@howtonebie.com>  Mon, 25 Aug 2025 00:00:00 +0000
+
+boa (0.0.8) stable; urgency=low
+
+  * feat: Implement changelog generation based on commit history
+  * feat: Add application to give a name value
+  * fix: Update signing configuration in `boa.yaml`
+  * feat: Add main script for `boa` build process
+  * feat: Add general configuration file for `boa` build
+  * feat: Add initial configuration file for `boa`
+  * Move copyright file to doc folder.
+  * Update README and logo files .
+
+ -- MLSTidbits <michaelschaecher@howtonebie.com>  Sun, 24 Aug 2025 00:00:00 +0000
+
+boa (0.0.0) stable; urgency=low
+
+  * Initial commit
+
+ -- Michael Schaecher <michaelschaecher@mlstidbits.com>  Sat, 23 Aug 2025 00:00:00 +0000
