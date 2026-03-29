@@ -107,7 +107,7 @@ function generateChangelog () {
 #set -euox pipefail
 
 appName="boa"
-appVersion=$(cat /usr/share/doc/boa/version 2> /dev/null || echo "unknown")
+appVersion=$(cat /usr/share/doc/boa/.version 2> /dev/null || echo "unknown")
 
 [[ ! -f "./.env" ]] &&
 print-info "error" ".env file not found! Please create one based on the .env.example file."
