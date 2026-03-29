@@ -20,7 +20,7 @@ debian/*.substvars
 debian/boa/
 debian/boa-*/
 
-doc/version
+.version
 man/boa.1
 man/boa.conf.5
 
