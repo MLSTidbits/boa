@@ -122,7 +122,7 @@ boa (0.6.2ubuntu1) UNRELEASED; urgency=medium
   * refactor: Restructure Makefile to improve build process for manpages and documentation
   * fix: Update .gitignore to correctly ignore version file
 
- -- Michael Schaecher <michaelschaecher@mlstidbits.com>  Sun, 29 Mar 2026 14:00:48 -0600
+ -- Michael Schaecher <michaelschaecher@mlstidbits.com>  Sun, 29 Mar 2026 14:01:16 -0600
 
 boa (0.6.2) stable; urgency=low
 
