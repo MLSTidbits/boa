@@ -1,6 +1,17 @@
+boa (0.5.10) stable; urgency=low
+
+  * refactor: Simplify debian/rules by consolidating build and install commands
+  * chore: Remove git+ from version in changelog generation.
+
+ -- MLSTidbits <michaelschaecher@mlstidbits.com>  Sun, 05 Apr 2026 00:00:00 +0000
+
 boa (0.5.8) stable; urgency=low
 
   * chore: Remove changelog file as part of repository cleanup
+  * Update changelog for 0.6.2ubuntu1 release
+  * Update changelog for 0.6.2ubuntu1 release
+  * Update changelog for 0.6.2ubuntu1 release
+  * Update changelog for 0.6.2ubuntu1 release
   * fix: Remove changelog from .gitignore to allow tracking of changes
   * fix: Update .gitignore to correctly ignore version file
   * refactor: Restructure Makefile to improve build process for manpages and documentation
