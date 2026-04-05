@@ -45,7 +45,7 @@ URGENCY="medium"
 MAINTAINER=""
 
 appName="boa"
-appVersion="0.1.0"
+appVersion="1.6"
 appDescription="Convert auto-changelog CHANGELOG.md to debian/changelog format"
 appAuthor="Michael Schaecher <michaelschaecher@mlstidbits.com>"
 
