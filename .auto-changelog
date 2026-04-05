@@ -1,0 +1,8 @@
+{
+  "output": "CHANGELOG.md",
+  "template": "compact",
+  "commitLimit": false,
+  "commitPattern": "^(feat:|fix:|refactor:)",
+  "hideCredit": false,
+  "startingVersion": "0.1"
+}
