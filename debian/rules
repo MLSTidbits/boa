@@ -32,23 +32,23 @@ clean:
 		debian/files
 
 install:
-	@dh_prep
-	@dh_installdocs
-	@dh_install
-	@dh_installman
-	@dh_bash-completion
-	@dh_installchangelogs
-	@dh_installsystemd
-	@dh_lintian
-	@dh_installmime
-	@dh_link
-	@dh_strip
-	@dh_compress
-	@dh_fixperms
-	@dh_installdeb
-	@dh_gencontrol
-	@dh_md5sums
-	@dh_builddeb
+	dh_prep
+	dh_installdocs
+	dh_install
+	dh_installman
+	dh_bash-completion
+	dh_installchangelogs
+	dh_installsystemd
+	dh_lintian
+	dh_installmime
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
 
 binary: build install
 
