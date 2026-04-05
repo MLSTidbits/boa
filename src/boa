@@ -56,7 +56,8 @@ function generateChangelog () {
         # Sort the hash based on the date the commit was made
         if [[ "$useCommitHash" == "true" ]] ; then
 
-            versionCode="$d+git~$(echo "$_commits" | xargs -I {} git show -s --format='%ct %h' {} |
+            d="$(echo "$d" | tr -d '-')"
+            versionCode="$d~$(echo "$_commits" | xargs -I {} git show -s --format='%ct %h' {} |
             sort -n | awk '{print $2}'| head -n 1)"
         else
             versionCode="${_major}.${_minor}.${_patch}"
