@@ -1,2 +1,1 @@
-src/boa /usr/bin/
-src/example.env /usr/share/boa/
+_build/boa /usr/bin/

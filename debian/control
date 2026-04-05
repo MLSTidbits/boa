@@ -14,24 +14,8 @@ Package: boa
 Architecture: any
 Depends:
  dh-make, git, build-essential, cmake, dpkg-dev, debhelper-compat (= 13), pandoc
-Conflicts: boa (>= 0.4.6)
-Description: Boa is a wrapper script for building Debian packages.
- Using a simple .env configuration file, it automates the process of building
- of Debian packages, making it easier for developers to manage their packages.
- .
- Boa supports features like changelog generation, GPG signing, and parallel
- builds, enhancing the package management experience.
-
-Package: boa-docs
-Architecture: all
-Depends: boa
-Description: Doc files for Boa
- This package contains the documentation files for Boa, including the version,
- copyright, README, contributing guidelines, and code of conduct. These files
- provide essential information about the project, its usage, and contribution
- guidelines.
-
-Package: boa-man
-Architecture: all
-Depends: boa, boa-docs
-Description: Man page for Boa configuration
+Conflicts: boa (>= 1.5)
+Description: Boa is a tool that converts auto-changelog CHANGELOG.md
+ Generate debian/changelog from auto-changelog CHANGELOG.md. It is designed to be
+ used in a CI/CD pipeline to automate the generation of debian/changelog from auto-
+ changelog CHANGELOG.md.
