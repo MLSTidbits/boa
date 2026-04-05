@@ -1,199 +1,163 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2025 MLS Tidbits <contact@mlstidbits.com> All rights reserved.
+# Copyright (c) 2025 Michael Schaecher <michaelschaecher@mlstidbits.com> All rights reserved.
 
-function print-info () {
+function usage () { echo "$helpInfo" ; exit "${1:-0}"; }
 
-    [[ "$1" == "" || "$1" == "info" ]] && echo -e "\e[32m[INFO]\e[0m $2"
-    [[ "$1" == "warning" ]] && echo -e "\e[33m[WARN]\e[0m $2"
-    [[ "$1" == "error" ]] && { echo -e "\e[31m[ERROR]\e[0m $2" ; exit 1 ; }
+function event-handler () {
+    local event="$1"
+    local msg="$2"
 
+    case "$event" in
+        error   ) echo "error: $msg" >&2 ; exit 1 ;;
+        warning ) echo "warning: $msg" >&2        ;;
+        info    ) echo "info: $msg"               ;;
+    esac
 }
 
-function generateChangelog () {
+function flush_block () {
+    [[ -z "$version" ]] && return
 
-    # Get the list of unique commit dates in reverse chronological order
-    _commitDates=$(git log --date=short --pretty=format:'%ad' | sort -ur)
-    _fistCommitDate=$(git log --date=short --pretty=format:'%ad' | tail -n 1)
+    # Convert date to RFC 2822 format (debian/changelog requirement)
+    # auto-changelog dates are like "5 April 2026" or "29 March 2026"
+    local rfc_date
+    rfc_date=$(date --date="$date_str" -R 2>/dev/null) || rfc_date="$(date -R)"
 
-    _changelogFile="debian/changelog"
-
-    if test -f "$_changelogFile" ; then rm -f "$_changelogFile" ; fi
-
-    # Iterate over each date # 2089492222
-    for d in $_commitDates; do
-
-        _gitBranch=$(git rev-parse --abbrev-ref HEAD)
-
-        # Check if the branch is for development/testing or main branch.
-        case "$_gitBranch" in
-            main|master|stable|release|production ) _releaseType="stable"   ;;
-            dev|development|unstable|testing      ) _releaseType="unstable" ;;
-            *                                     ) _releaseType="stable"   ;;
-        esac
-
-        # Get the list of commits for the current date
-        _commits=$(git log "${_gitBranch}" --since="$d 00:00" --until="$d 23:59" --pretty=format:'%h')
-
-        test -n "$_commits" || _commits=$(git log --since="$d 00:00" --pretty=format:'%h')
-
-        # Get the author name and email from the latest commit of the day
-        _latestCommit=$(echo "$_commits" | head -n 1)
-        _authorName=$(git log -1 --format='%an' "$_latestCommit")
-        _authorEmail=$(git log -1 --format='%ae' "$_latestCommit")
-
-        # Count the number of commits and reverse the order
-        mapfile -t commitCount < <(git rev-list HEAD --since="$_fistCommitDate" --until="$d 23:59")
-
-        _major=0 ; _minor=0 ; _patch=0
-
-        for ((i=0; i<${#commitCount[@]}; i++)); do
-            _patch=$(( _patch + 1 ))
-            (( _patch == changelogIteration )) && { _patch=0 ; _minor=$(( _minor + 1 )) ; }
-            (( _minor == changelogIteration )) && { _minor=0 ; _major=$(( _major + 1 )) ; }
+    {
+        echo "${PACKAGE} (${version}) ${DISTRIBUTION}; urgency=${URGENCY}"
+        echo ""
+        for entry in "${entries[@]}"; do
+            echo "  * ${entry}"
         done
-
-        # Sort the hash based on the date the commit was made
-        if [[ "$useCommitHash" == "true" ]] ; then
-
-            d="$(echo "$d" | tr -d '-')"
-            versionCode="$d~$(echo "$_commits" | xargs -I {} git show -s --format='%ct %h' {} |
-            sort -n | awk '{print $2}'| head -n 1)"
-        else
-            versionCode="${_major}.${_minor}.${_patch}"
-        fi
-
-        # In some cases an app is just being packaged so the version should be the short commit hash
-        # [[ "$useCommitHash" == "true" ]] && versionCode="$(git rev-parse --short HEAD)"
-        # [[ "$useCommitHash" == "false" ]] && versionCode="${_major}.${_minor}.${_patch}"
-
-        # Format the date for the changelog entry
-        _changelogDate=$(date -d "$d" '+%a, %d %b %Y')
-
-        [[ -f "$_changelogFile" ]] && _lineCount=$(wc -l < "$_changelogFile")
-
-        if [[ -n "$changelogLineLimit" ]] && [[ "$_lineCount" -gt "$changelogLineLimit" ]]; then
-            print-info "warning" "Changelog line limit of $changelogLineLimit exceeded, stopping changelog generation!"
-            break 2
-        fi
-
-        # Start the changelog entry
-        {
-            echo "${packageName} (${versionCode}) ${_releaseType}; urgency=$changelogUrgency"
-            echo ""
-
-            # Add each commit message to the changelog entry
-            while IFS= read -r commit; do
-                _commitMessage=$(git log -1 --pretty=format:'%s' "$commit")
-                echo "  * $_commitMessage"
-            done < <(printf '%s\n' "$_commits")
-
-            # End the changelog entry
-            echo ""
-            echo " -- ${_authorName} <${_authorEmail}>  ${_changelogDate} 00:00:00 +0000"
-            echo ""
-        } >> "$_changelogFile"
-
-    done
-
-    # Remove the extra trailing blank line (Debian changelog requires exactly one)
-    sed -i '${/^$/d}' "$_changelogFile"
-
-    # Set the current version in a version file for use in the build process
-    cat "$_changelogFile" | awk 'NR==1 {print $2}' | tr -d '()' > .version
-
+        echo ""
+        echo " -- ${MAINTAINER}  ${rfc_date}"
+        echo ""
+    } >> "$OUTPUT"
 }
 
-# Uncomment for debugging
-#set -euox pipefail
+set -euo pipefail
+
+INPUT="CHANGELOG.md"
+OUTPUT="debian/changelog"
+PACKAGE="$(basename "$(pwd)")"
+DISTRIBUTION="unstable"
+URGENCY="medium"
+MAINTAINER=""
 
 appName="boa"
-appVersion=$(cat /usr/share/doc/boa/.version 2> /dev/null || echo "unknown")
+appVersion="0.1.0"
+appDescription="Convert auto-changelog CHANGELOG.md to debian/changelog format"
+appAuthor="Michael Schaecher <michaelschaecher@mlstidbits.com>"
 
-[[ ! -f "./.env" ]] &&
-print-info "error" ".env file not found! Please create one based on the .env.example file."
+helpInfo="$(cat << EOF
+changelog-to-deb — convert auto-changelog CHANGELOG.md to debian/changelog
 
-source ./.env
+Usage: changelog-to-deb [OPTIONS]
 
-### Build options ###
-build="${BUILD:-binary}"
-preClean="${PRE_CLEAN:-true}"
-postClean="${POST_CLEAN:-false}"
-checkBuildDeps="${CHECKBUILDDEPS:-true}"
-jobs="${JOBS:-auto}"
+Options:
+    -i, --input <file>       Input CHANGELOG.md (default: CHANGELOG.md)
+    -o, --output <file>      Output file (default: debian/changelog)
+    -p, --package <name>     Package name (default: read from debian/control)
+    -d, --distribution <d>   Distribution (default: unstable)
+    -u, --urgency <u>        Urgency (default: medium)
+    -m, --maintainer <m>     Maintainer (default: from git config or DEBEMAIL/DEBFULLNAME)
+    -h, --help               Show this help
+EOF
+)"
 
-### Signing options ###
-signEnable="${SIGN:-false}"
-signBackend="${BACKEND:-auto}"
-signKeyID="${KEYID:-}"
-signPause="${PAUSE:-false}"
+command -v auto-changelog >/dev/null 2>&1 || event-handler \
+"error" "auto-changelog not found. Please install it with 'npm install -g auto-changelog'"
 
-### Changelog options ###
-changelogEnable="${CHANGELOG_ENABLE:-true}"
-changelogIteration="${CHANGELOG_ITERATION:-15}"
-changelogLineLimit="${CHANGELOG_LINE_LIMIT:-}"
-changelogUrgency="${CHANGELOG_URGENCY:-low}"
-useCommitHash="${CHANGELOG_USE_COMMIT_HASH:-false}"
-
-packageName="$(basename "$(pwd)")"
-
-cmd="dpkg-buildpackage"
-
-case "$build" in
-    source|binary|source,binary ) cmd+=" --build=$build"                ;;
-    *) echo "Error: Invalid build type specified in boa.yaml!" ; exit 1 ;;
-esac
-
-# Verify pre-clean option
-[[ "$preClean" == "true" ]] && cmd+=" --pre-clean"
-[[ "$preClean" == "false" ]] && cmd+=" --no-pre-clean"
-
-# Verify post-clean option
-[[ "$postClean" == "true" ]] && cmd+=" --post-clean"
-[[ "$postClean" == "false" ]] && cmd+=" --no-post-clean"
-
-[[ "$checkBuildDeps" == "true" ]] && cmd+=" --check-builddeps"
-
-# Verify that the jobs value is valid
-case "$jobs" in
-    auto                        ) cmd+=" --jobs=$jobs" ;;
-    [0-9]*[0-9]                 )
-        test "$jobs" -gt "$(nproc --all)" &&
-        print-info "warning" "Jobs value exceeds available CPU/Threads!"
-        cmd+=" --jobs=$jobs"
-    ;;
-    *                           )
-        test "$jobs" -ge 1 ||
-        print-info "warning" "Invalid jobs value specified in boa.yaml!"
-    ;;
-esac
-
-[[ "$signEnable" == "false" ]] && cmd+=" --no-sign"
-
-# Only add signing options if signing is enabled
-if [[ "$signEnable" == "true"  ]] ; then
-
-    case "$signBackend" in
-        sop|sq|gpg              ) cmd+=" --sign-backend=$signBackend" ;;
-        auto                    ) ;;
-        *                       )
-            echo "Error: Invalid sign backend specified in boa.yaml!" ; exit 1
-        ;;
-    esac
-
-    if [[ -z "$signKeyID" ]]; then
-        print-info "erroror" "No signing key ID specified in .env file!"
-    else
-        cmd+=" --sign-keyid=$signKeyID"
+if [[ -z "$MAINTAINER" ]]; then
+    NAME="${DEBFULLNAME:-$(git config user.name 2>/dev/null || echo "")}"
+    EMAIL="${DEBEMAIL:-$(git config user.email 2>/dev/null || echo "")}"
+    if [[ -n "$NAME" && -n "$EMAIL" ]]; then
+        MAINTAINER="${NAME} <${EMAIL}>"
     fi
-
-    [[ "$signPause" == "true" ]] && cmd+=" --sign-pause"
 fi
 
-[[ "$changelogEnable" == "true" ]] && generateChangelog
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -i|--input)        INPUT="$2";        shift 2 ;;
+        -o|--output)       OUTPUT="$2";       shift 2 ;;
+        -p|--package)      PACKAGE="$2";      shift 2 ;;
+        -d|--distribution) DISTRIBUTION="$2"; shift 2 ;;
+        -u|--urgency)      URGENCY="$2";      shift 2 ;;
+        -m|--maintainer)   MAINTAINER="$2";   shift 2 ;;
+        -h|--help)         usage 0 ;;
+        *)
+            echo "error: unknown option: $1" >&2
+            usage 1
+            ;;
+    esac
+done
 
-eval "$cmd" || print-info "error" "Build process failed!"
+if [[ -z "$PACKAGE" ]]; then
+    [[ -f debian/control ]] && PACKAGE=$(grep -m1 '^Source:' debian/control | awk '{print $2}')
+fi
 
-print-info "info" "$appName v$appVersion build process completed successfully."
+[[ -n "$PACKAGE" ]] || event-handler "error" "could not determine package name. Use -p/--package."
 
-exit 0
+[[ -n "$MAINTAINER" ]] || event-handler \
+"error" "could not determine maintainer. Use -m/--maintainer or set git config user.name and user.email"
+
+[[ -f "$INPUT" ]] || event-handler "error" "input file not found: $INPUT"
+
+mkdir -p "$(dirname "$OUTPUT")"
+
+# State
+version=""
+date_str=""
+declare -a entries=()
+first_block=true
+
+# Wipe output file
+: > "$OUTPUT"
+
+while IFS= read -r line; do
+    # Match version header: #### [1.6](...) or ### [1.0](...)
+    if [[ "$line" =~ ^#{2,4}[[:space:]]+\[([^]]+)\] ]]; then
+        # Flush previous block
+        if [[ -n "$version" ]]; then
+            flush_block
+        fi
+        version="${BASH_REMATCH[1]}"
+        entries=()
+        date_str=""
+        first_block=false
+        continue
+    fi
+
+    # Match version header without link (e.g. "#### 0.0")
+    if [[ "$line" =~ ^#{2,4}[[:space:]]+([0-9]+\.[0-9]+[^[:space:]]*)$ ]]; then
+        if [[ -n "$version" ]]; then
+            flush_block
+        fi
+        version="${BASH_REMATCH[1]}"
+        entries=()
+        date_str=""
+        first_block=false
+        continue
+    fi
+
+    # Match date line: "> 5 April 2026"
+    if [[ "$line" =~ ^\>[[:space:]]+(.+)$ ]]; then
+        date_str="${BASH_REMATCH[1]}"
+        continue
+    fi
+
+    # Match commit entry: "- some message [`abc1234`](url)"
+    if [[ "$line" =~ ^\-[[:space:]]+ ]]; then
+        # Strip leading "- " and trailing commit link [`hash`](url)
+        msg="${line#- }"
+        msg=$(echo "$msg" | sed 's/ \[`[0-9a-f]*`\]([^)]*)$//')
+        [[ -n "$msg" ]] && entries+=("$msg")
+        continue
+    fi
+
+done < "$INPUT"
+
+# Flush final block
+[[ -n "$version" ]] && flush_block
+
+echo "Written: $OUTPUT"
