@@ -24,25 +24,26 @@ function flush_block () {
     rfc_date=$(date --date="$date_str" -R 2>/dev/null) || rfc_date="$(date -R)"
 
     {
-        echo "${PACKAGE} (${version}) ${DISTRIBUTION}; urgency=${URGENCY}"
+        echo "${currentPackage} (${version}) ${releaseType}; urgency=${urgency}"
         echo ""
         for entry in "${entries[@]}"; do
             echo "  * ${entry}"
         done
         echo ""
-        echo " -- ${MAINTAINER}  ${rfc_date}"
+        echo " -- ${maintainer}  ${rfc_date}"
         echo ""
-    } >> "$OUTPUT"
+    } >> "$output"
 }
 
-set -euo pipefail
+# Uncomment for debugging
+#set -exo pipefail
 
-INPUT="CHANGELOG.md"
-OUTPUT="debian/changelog"
-PACKAGE="$(basename "$(pwd)")"
-DISTRIBUTION="unstable"
-URGENCY="medium"
-MAINTAINER=""
+input="CHANGELOG.md"
+output="debian/changelog"
+currentPackage="$(basename "$(pwd)")"
+releaseType="unstable"
+urgency="medium"
+maintainer=""
 
 appName="boa"
 appVersion="1.6"
@@ -68,22 +69,22 @@ EOF
 command -v auto-changelog >/dev/null 2>&1 || event-handler \
 "error" "auto-changelog not found. Please install it with 'npm install -g auto-changelog'"
 
-if [[ -z "$MAINTAINER" ]]; then
+if [[ -z "$maintainer" ]]; then
     NAME="${DEBFULLNAME:-$(git config user.name 2>/dev/null || echo "")}"
     EMAIL="${DEBEMAIL:-$(git config user.email 2>/dev/null || echo "")}"
     if [[ -n "$NAME" && -n "$EMAIL" ]]; then
-        MAINTAINER="${NAME} <${EMAIL}>"
+        maintainer="${NAME} <${EMAIL}>"
     fi
 fi
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -i|--input)        INPUT="$2";        shift 2 ;;
-        -o|--output)       OUTPUT="$2";       shift 2 ;;
-        -p|--package)      PACKAGE="$2";      shift 2 ;;
-        -d|--distribution) DISTRIBUTION="$2"; shift 2 ;;
-        -u|--urgency)      URGENCY="$2";      shift 2 ;;
-        -m|--maintainer)   MAINTAINER="$2";   shift 2 ;;
+        -i|--input)        input="$2";        shift 2 ;;
+        -o|--output)       output="$2";       shift 2 ;;
+        -p|--package)      currentPackage="$2";      shift 2 ;;
+        -d|--distribution) releaseType="$2"; shift 2 ;;
+        -u|--urgency)      urgency="$2";      shift 2 ;;
+        -m|--maintainer)   maintainer="$2";   shift 2 ;;
         -h|--help)         usage 0 ;;
         *)
             echo "error: unknown option: $1" >&2
@@ -92,18 +93,18 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ -z "$PACKAGE" ]]; then
-    [[ -f debian/control ]] && PACKAGE=$(grep -m1 '^Source:' debian/control | awk '{print $2}')
+if [[ -z "$currentPackage" ]]; then
+    [[ -f debian/control ]] && currentPackage=$(grep -m1 '^Source:' debian/control | awk '{print $2}')
 fi
 
-[[ -n "$PACKAGE" ]] || event-handler "error" "could not determine package name. Use -p/--package."
+[[ -n "$currentPackage" ]] || event-handler "error" "could not determine package name. Use -p/--package."
 
-[[ -n "$MAINTAINER" ]] || event-handler \
+[[ -n "$maintainer" ]] || event-handler \
 "error" "could not determine maintainer. Use -m/--maintainer or set git config user.name and user.email"
 
-[[ -f "$INPUT" ]] || event-handler "error" "input file not found: $INPUT"
+[[ -f "$input" ]] || event-handler "error" "input file not found: $input"
 
-mkdir -p "$(dirname "$OUTPUT")"
+mkdir -p "$(dirname "$output")"
 
 # State
 version=""
@@ -112,7 +113,7 @@ declare -a entries=()
 first_block=true
 
 # Wipe output file
-: > "$OUTPUT"
+: > "$output"
 
 while IFS= read -r line; do
     # Match version header: #### [1.6](...) or ### [1.0](...)
@@ -155,9 +156,9 @@ while IFS= read -r line; do
         continue
     fi
 
-done < "$INPUT"
+done < "$input"
 
 # Flush final block
 [[ -n "$version" ]] && flush_block
 
-echo "Written: $OUTPUT"
+echo "Written: $output"
