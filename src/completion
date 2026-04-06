@@ -1,0 +1,30 @@
+# shellcheck disable=SC2148
+
+# bash-completion for boa (Debian changelog automation tool)
+
+_boa-complete ()
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    opts="-i -input -o -output -p --package -d --distribution -u --urgency -m --maintainer -h --help -v --version"
+
+    if [[ ${cur} == -* ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "${opts}" -- "${cur}")
+        return 0
+    fi
+
+    case "${prev}" in
+        -u|--urgency)
+            mapfile -t COMPREPLY < <(compgen -W "low medium high critical" -- "${cur}")
+            return 0
+            ;;
+        -d|--distribution)
+            mapfile -t COMPREPLY < <(compgen -W \
+                "stable testing unstable $(lsb_release -sc | awk 'NR==2{print $1}')" -- "${cur}")
+            return 0
+            ;;
+    esac
+}
