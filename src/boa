@@ -52,7 +52,7 @@ debianEmail="${DEBEMAIL:-$(git config user.email 2>/dev/null || echo "")}"
 maintainer="$debianUser <$debianEmail>"
 
 appName="boa"
-appVersion="1.6"
+appVersion="1.7"
 appDescription="Convert auto-changelog CHANGELOG.md to debian/changelog format"
 appAuthor="Michael Schaecher <michaelschaecher@mlstidbits.com>"
 
