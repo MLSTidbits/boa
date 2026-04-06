@@ -17,6 +17,7 @@ debian/*.debhelper
 debian/*.substvars
 debian/boa/
 debian/boa-*/
+debian/changelog
 
 .version
 man/boa.1
