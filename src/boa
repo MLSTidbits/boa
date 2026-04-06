@@ -38,12 +38,18 @@ function flush_block () {
 # Uncomment for debugging
 #set -exo pipefail
 
+source /etc/os-release
+
 input="CHANGELOG.md"
 output="debian/changelog"
 currentPackage="$(basename "$(pwd)")"
-releaseType="unstable"
+releaseType="${VERSION_CODENAME:-unstable}"
 urgency="medium"
-maintainer=""
+
+debianUser="${DEBFULLNAME:-$(git config user.name 2>/dev/null || echo "")}"
+debianEmail="${DEBEMAIL:-$(git config user.email 2>/dev/null || echo "")}"
+
+maintainer="$debianUser <$debianEmail>"
 
 appName="boa"
 appVersion="1.6"
@@ -53,13 +59,13 @@ appAuthor="Michael Schaecher <michaelschaecher@mlstidbits.com>"
 helpInfo="$(cat << EOF
 changelog-to-deb — convert auto-changelog CHANGELOG.md to debian/changelog
 
-Usage: changelog-to-deb [OPTIONS]
+Usage: $0 [OPTIONS] args...
 
 Options:
     -i, --input <file>       Input CHANGELOG.md (default: CHANGELOG.md)
     -o, --output <file>      Output file (default: debian/changelog)
     -p, --package <name>     Package name (default: read from debian/control)
-    -d, --distribution <d>   Distribution (default: unstable)
+    -d, --release <d>        Release type (default: unstable)
     -u, --urgency <u>        Urgency (default: medium)
     -m, --maintainer <m>     Maintainer (default: from git config or DEBEMAIL/DEBFULLNAME)
     -h, --help               Show this help
@@ -69,33 +75,20 @@ EOF
 command -v auto-changelog >/dev/null 2>&1 || event-handler \
 "error" "auto-changelog not found. Please install it with 'npm install -g auto-changelog'"
 
-if [[ -z "$maintainer" ]]; then
-    NAME="${DEBFULLNAME:-$(git config user.name 2>/dev/null || echo "")}"
-    EMAIL="${DEBEMAIL:-$(git config user.email 2>/dev/null || echo "")}"
-    if [[ -n "$NAME" && -n "$EMAIL" ]]; then
-        maintainer="${NAME} <${EMAIL}>"
-    fi
-fi
-
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -i|--input)        input="$2";        shift 2 ;;
-        -o|--output)       output="$2";       shift 2 ;;
-        -p|--package)      currentPackage="$2";      shift 2 ;;
-        -d|--distribution) releaseType="$2"; shift 2 ;;
-        -u|--urgency)      urgency="$2";      shift 2 ;;
-        -m|--maintainer)   maintainer="$2";   shift 2 ;;
-        -h|--help)         usage 0 ;;
+        -i|--input      ) input="$2"         ; shift 2 ;;
+        -o|--output     ) output="$2"        ; shift 2 ;;
+        -p|--package    ) currentPackage="$2"; shift 2 ;;
+        -d|--release    ) releaseType="$2"   ; shift 2 ;;
+        -u|--urgency    ) urgency="$2"       ; shift 2 ;;
+        -m|--maintainer ) maintainer="$2"    ; shift 2 ;;
+        -h|--help       ) usage 0                      ;;
         *)
-            echo "error: unknown option: $1" >&2
-            usage 1
+            event-handler "error" "unknown option: $1. Use -h/--help for usage information."
             ;;
     esac
 done
-
-if [[ -z "$currentPackage" ]]; then
-    [[ -f debian/control ]] && currentPackage=$(grep -m1 '^Source:' debian/control | awk '{print $2}')
-fi
 
 [[ -n "$currentPackage" ]] || event-handler "error" "could not determine package name. Use -p/--package."
 
@@ -119,9 +112,7 @@ while IFS= read -r line; do
     # Match version header: #### [1.6](...) or ### [1.0](...)
     if [[ "$line" =~ ^#{2,4}[[:space:]]+\[([^]]+)\] ]]; then
         # Flush previous block
-        if [[ -n "$version" ]]; then
-            flush_block
-        fi
+        [[ -n "$version" ]] && flush_block
         version="${BASH_REMATCH[1]}"
         entries=()
         date_str=""
@@ -131,9 +122,7 @@ while IFS= read -r line; do
 
     # Match version header without link (e.g. "#### 0.0")
     if [[ "$line" =~ ^#{2,4}[[:space:]]+([0-9]+\.[0-9]+[^[:space:]]*)$ ]]; then
-        if [[ -n "$version" ]]; then
-            flush_block
-        fi
+        [[ -n "$version" ]] && flush_block
         version="${BASH_REMATCH[1]}"
         entries=()
         date_str=""
@@ -151,7 +140,7 @@ while IFS= read -r line; do
     if [[ "$line" =~ ^\-[[:space:]]+ ]]; then
         # Strip leading "- " and trailing commit link [`hash`](url)
         msg="${line#- }"
-        msg=$(echo "$msg" | sed 's/ \[`[0-9a-f]*`\]([^)]*)$//')
+        msg="${msg% \[\`[0-9a-f]*\`\](*\)}"
         [[ -n "$msg" ]] && entries+=("$msg")
         continue
     fi
@@ -161,4 +150,6 @@ done < "$input"
 # Flush final block
 [[ -n "$version" ]] && flush_block
 
-echo "Written: $output"
+event-handler "info" "changelog conversion complete: $output"
+
+exit 0
