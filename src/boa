@@ -56,8 +56,11 @@ appVersion="1.6"
 appDescription="Convert auto-changelog CHANGELOG.md to debian/changelog format"
 appAuthor="Michael Schaecher <michaelschaecher@mlstidbits.com>"
 
+versionInfo="$appName $appVersion - $appDescription"
+licenseInfo="Copyright (c) 2026 $appAuthor under the GPL-3.0+ License (https://www.gnu.org/licenses/gpl-3.0.html)"
+
 helpInfo="$(cat << EOF
-changelog-to-deb — convert auto-changelog CHANGELOG.md to debian/changelog
+$versionInfo
 
 Usage: $0 [OPTIONS] args...
 
@@ -65,10 +68,13 @@ Options:
     -i, --input <file>       Input CHANGELOG.md (default: CHANGELOG.md)
     -o, --output <file>      Output file (default: debian/changelog)
     -p, --package <name>     Package name (default: read from debian/control)
-    -d, --release <d>        Release type (default: unstable)
+    -r, --release <d>        Release type (default: unstable)
     -u, --urgency <u>        Urgency (default: medium)
     -m, --maintainer <m>     Maintainer (default: from git config or DEBEMAIL/DEBFULLNAME)
     -h, --help               Show this help
+    -v, --version            Show version information
+
+$licenseInfo
 EOF
 )"
 
@@ -77,13 +83,14 @@ command -v auto-changelog >/dev/null 2>&1 || event-handler \
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -i|--input      ) input="$2"         ; shift 2 ;;
-        -o|--output     ) output="$2"        ; shift 2 ;;
-        -p|--package    ) currentPackage="$2"; shift 2 ;;
-        -d|--release    ) releaseType="$2"   ; shift 2 ;;
-        -u|--urgency    ) urgency="$2"       ; shift 2 ;;
-        -m|--maintainer ) maintainer="$2"    ; shift 2 ;;
-        -h|--help       ) usage 0                      ;;
+        -i|--input      ) input="$2"          ; shift 2 ;;
+        -o|--output     ) output="$2"         ; shift 2 ;;
+        -p|--package    ) currentPackage="$2" ; shift 2 ;;
+        -r|--release    ) releaseType="$2"    ; shift 2 ;;
+        -u|--urgency    ) urgency="$2"        ; shift 2 ;;
+        -m|--maintainer ) maintainer="$2"     ; shift 2 ;;
+        -h|--help       ) usage 0                       ;;
+        -v|--version    ) echo "$versionInfo" ; exit 0  ;;
         *)
             event-handler "error" "unknown option: $1. Use -h/--help for usage information."
             ;;
