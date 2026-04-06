@@ -1,4 +1,4 @@
-.PHONY: all clean install _build/man _build/doc uninstall
+.PHONY: all clean install _build/man _build/doc _build/src uninstall
 
 APPLICATION = $(shell pwd | xargs basename)
 VERSION = $(shell cat doc/version)
@@ -8,7 +8,7 @@ SOURCE_DIR = src
 DOC_DIR = doc
 MAN_DIR = man
 
-all: _build/man _build/doc
+all: _build/man _build/doc _build/src
 
 clean:
 	@rm -rf $(BUILD_DIR)
@@ -57,9 +57,17 @@ _build/doc:
 		fi; \
 	done
 
-	@for src in $(SOURCE_DIR)/*; do \
-		if [ -f "$$src" ]; then \
-			echo "\e[1;32mSR\e[0m  $$src"; \
-			cp -f "$$src" $(BUILD_DIR)/; \
+_build/src:
+	@mkdir -p $@ $(BUILD_DIR)/completion
+	@for file in $(SOURCE_DIR)/*; do \
+		if [ -f "$$file" ]; then \
+			echo "\e[1;32mSR\e[0m  $$file"; \
+			if [ "$$file" = "$(SOURCE_DIR)/completion" ]; then \
+				cp -f "$$file" $(BUILD_DIR)/completion/boa; \
+			else \
+				cp -f "$$file" $(BUILD_DIR)/; \
+			fi; \
 		fi; \
 	done
+
+	@rm -rf $(BUILD_DIR)/$(SOURCE_DIR)
