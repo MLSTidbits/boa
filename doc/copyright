@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: template
-Upstream-Contact: <preferred name and address to reach the upstream project>
-Source: <url://example.com>
+Upstream-Contact: Michael Schaecher <michaelschaecher@mlstidbits.com>
+Source: https://github.com/MLSTidbits/boa.git
 
 Files: *
 Copyright: 2025 MLS Tidbits <contact@mlstidbits.com>
