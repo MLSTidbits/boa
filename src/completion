@@ -28,3 +28,5 @@ _boa-complete ()
             ;;
     esac
 }
+
+complete -F _boa-complete boa
